@@ -1,0 +1,245 @@
+/* Modern styling for Summarization component */
+.summarization-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.summarization-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.summarization-header h1 {
+  font-size: 2.5em;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+  font-weight: 700;
+  background: linear-gradient(120deg, #2b5876, #4e4376);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1.1em;
+  margin-top: 0;
+}
+
+.input-section {
+  margin-bottom: 30px;
+}
+
+.textarea-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.summarization-textarea {
+  width: 95%;
+  min-height: 200px;
+  padding: 20px;
+  font-size: 16px;
+  line-height: 1.6;
+  border: 2px solid #e1e5ea;
+  border-radius: 12px;
+  background: white;
+  transition: all 0.3s ease;
+  resize: vertical;
+  font-family: "Inter", -apple-system, sans-serif;
+}
+
+.summarization-textarea:focus {
+  outline: none;
+  border-color: #4e4376;
+  box-shadow: 0 0 0 3px rgba(78, 67, 118, 0.1);
+}
+
+.char-count {
+  position: absolute;
+  bottom: 10px;
+  right: 25px;
+  color: #888;
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.summarization-button {
+  width: 100%;
+  padding: 15px 30px;
+  font-size: 1.1em;
+  color: white;
+  background: linear-gradient(120deg, #2b5876, #4e4376);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.summarization-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 67, 118, 0.2);
+}
+
+.summarization-button:disabled {
+  background: linear-gradient(120deg, #ccd1d9, #a7aebb);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.summarization-button.loading {
+  cursor: wait;
+}
+
+.loading-text {
+  display: inline-block;
+}
+
+.dot {
+  animation: dotAnimation 1.5s infinite;
+  opacity: 0;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 1s;
+}
+
+@keyframes dotAnimation {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.error-message {
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.summary-output {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-top: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  animation: slideIn 0.5s ease;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.summary-header h2 {
+  font-size: 1.5em;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.copy-button {
+  padding: 8px 16px;
+  font-size: 0.9em;
+  color: #4e4376;
+  background: transparent;
+  border: 2px solid #4e4376;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  background: #4e4376;
+  color: white;
+}
+
+.summary-content {
+  color: #333;
+  line-height: 1.7;
+  font-size: 1.1em;
+}
+
+.keyboard-shortcut {
+  text-align: center;
+  color: #888;
+  font-size: 0.9em;
+  margin-top: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .summarization-container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .summarization-header h1 {
+    font-size: 2em;
+  }
+
+  .summary-output {
+    padding: 20px;
+  }
+
+  .summary-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+}
+
+/* Print styles */
+@media print {
+  .summarization-container {
+    box-shadow: none;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .summarization-button,
+  .copy-button,
+  .keyboard-shortcut {
+    display: none;
+  }
+}

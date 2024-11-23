@@ -1,0 +1,404 @@
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./Navbar.css";
+import "./AIModal.css";
+import logo from "./../../assets/logo.png";
+
+// Constants
+const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
+const STORAGE_KEY = "ai_chat_history";
+
+// Chat Message Component
+const ChatMessage = ({ message }) => (
+  <div
+    className={`chat-message ${
+      message.type === "user" ? "user-message" : "ai-message"
+    }`}
+  >
+    <div className="message-content">
+      <p>{message.content}</p>
+      <span className="message-timestamp">{message.timestamp}</span>
+    </div>
+  </div>
+);
+
+// Loading Indicator Component
+const LoadingIndicator = () => (
+  <div className="chat-message ai-message">
+    <div className="message-content">
+      <div className="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+);
+
+// Search Component
+const SearchBar = () => (
+  <div className="search-container">
+    <input
+      type="text"
+      placeholder="Search AI-enhanced..."
+      className="search-input"
+    />
+    <button className="search-button">
+      <svg
+        className="search-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
+      </svg>
+    </button>
+  </div>
+);
+
+// AI Modal Component
+const AIModal = ({
+  isOpen,
+  onClose,
+  chatMessages,
+  aiQuery,
+  setAIQuery,
+  handleAISubmit,
+  isLoading,
+  chatContainerRef,
+  handleClearChat,
+}) => {
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleAISubmit();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <div className="ai-modal-overlay" onClick={onClose}></div>
+      <div className="ai-modal">
+        <div className="ai-modal-content">
+          <div className="ai-modal-header">
+            <h2 className="ai-modal-title">AI Assistant</h2>
+            <div className="ai-modal-actions">
+              <button className="clear-chat-button" onClick={handleClearChat}>
+                Clear Chat
+              </button>
+              <button className="ai-modal-close" onClick={onClose}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div className="chat-container" ref={chatContainerRef}>
+            {chatMessages.map((message, index) => (
+              <ChatMessage key={index} message={message} />
+            ))}
+            {isLoading && <LoadingIndicator />}
+          </div>
+
+          <div className="chat-input-container">
+            <textarea
+              className="chat-input"
+              placeholder="Type your message..."
+              value={aiQuery}
+              onChange={(e) => setAIQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+            ></textarea>
+            <button
+              className="chat-send-button"
+              onClick={handleAISubmit}
+              disabled={isLoading || !aiQuery.trim()}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// Profile Menu Component
+const ProfileMenu = ({
+  isLoggedIn,
+  isProfileMenuOpen,
+  toggleProfileMenu,
+  handleSignOut,
+}) => (
+  <div className="profile-menu">
+    {isLoggedIn ? (
+      <>
+        <button className="profile-button" onClick={toggleProfileMenu}>
+          <span className="profile-name">Akash</span>
+          <svg
+            className="chevron-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+
+        {isProfileMenuOpen && (
+          <div className="profile-dropdown">
+            <Link to="/profile" className="dropdown-item">
+              Profile
+            </Link>
+            <Link to="/settings" className="dropdown-item">
+              Settings
+            </Link>
+            <Link to="/help" className="dropdown-item">
+              Help & Support
+            </Link>
+            <div className="dropdown-divider"></div>
+            <Link className="dropdown-item" onClick={handleSignOut}>
+              Sign Out
+            </Link>
+          </div>
+        )}
+      </>
+    ) : (
+      <Link to="/login">
+        <button className="login-button">Login</button>
+      </Link>
+    )}
+  </div>
+);
+
+// Main Navbar Component
+const Navbar = ({ isLoggedIn, handleLogout }) => {
+  const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [isAIAssistantOpen, setAIAssistantOpen] = useState(false);
+  const [aiQuery, setAIQuery] = useState("");
+  const [chatMessages, setChatMessages] = useState(() => {
+    // Load chat history from localStorage on initial render
+    const savedHistory = localStorage.getItem(STORAGE_KEY);
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const chatContainerRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Save chat history to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(chatMessages));
+  }, [chatMessages]);
+
+  // Scroll to bottom whenever messages change
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
+
+  const toggleProfileMenu = () => setProfileMenuOpen(!isProfileMenuOpen);
+
+  const toggleAIAssistant = () => {
+    setAIAssistantOpen(!isAIAssistantOpen);
+    if (!isAIAssistantOpen) {
+      setAIQuery("");
+    }
+  };
+
+  const handleSignOut = () => {
+    handleLogout();
+    setProfileMenuOpen(false);
+    navigate("/login");
+  };
+
+  const handleClearChat = () => {
+    setChatMessages([]);
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
+  const handleAISubmit = async () => {
+    if (!aiQuery.trim()) return;
+
+    const userMessage = {
+      type: "user",
+      content: aiQuery,
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+
+    // Construct context from previous messages
+    const conversationHistory = chatMessages
+      .map((msg) => `${msg.type}: ${msg.content}`)
+      .join("\n");
+
+    const contextualPrompt = `Previous conversation:\n${conversationHistory}\n\nCurrent query: ${aiQuery}\n\nPlease provide a response that takes into account the conversation history above.`;
+
+    setChatMessages((prev) => [...prev, userMessage]);
+    setAIQuery("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: contextualPrompt }] }],
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = {
+        type: "ai",
+        content:
+          data.candidates?.[0]?.content?.parts?.[0]?.text ||
+          "No response generated. Please try again.",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      setChatMessages((prev) => [...prev, aiResponse]);
+    } catch (error) {
+      console.error("Error with Gemini API:", error);
+      const errorResponse = {
+        type: "ai",
+        content:
+          "Sorry, I couldn't process your request at the moment. Please try again later.",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      setChatMessages((prev) => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <nav className="navbar">
+      <div className="navbar-container">
+        <div className="navbar-logo">
+          <img src={logo} alt="Logo" className="logo-image" />
+          <span className="logo-text">SyncOps</span>
+        </div>
+
+        <div className="navbar-menu">
+          <Link to="/dashboard" className="nav-link">
+            Dashboard
+          </Link>
+          <Link to="/projects" className="nav-link">
+            Projects
+          </Link>
+          <Link to="/tasks" className="nav-link">
+            Tasks
+          </Link>
+          <Link to="/analytics" className="nav-link">
+            Analytics
+          </Link>
+          <Link to="/resources" className="nav-link">
+            Resources
+          </Link>
+          <Link to="/chatroom" className="nav-link">
+            Chat
+          </Link>
+        </div>
+
+        <div className="navbar-actions">
+          <SearchBar />
+
+          <button className="ai-assistant-button" onClick={toggleAIAssistant}>
+            <svg
+              className="ai-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 10h11M9 21V3M4 14l5 5m0-5l-5-5"
+              />
+            </svg>
+            AI
+          </button>
+
+          <ProfileMenu
+            isLoggedIn={isLoggedIn}
+            isProfileMenuOpen={isProfileMenuOpen}
+            toggleProfileMenu={toggleProfileMenu}
+            handleSignOut={handleSignOut}
+          />
+        </div>
+      </div>
+
+      <AIModal
+        isOpen={isAIAssistantOpen}
+        onClose={toggleAIAssistant}
+        chatMessages={chatMessages}
+        aiQuery={aiQuery}
+        setAIQuery={setAIQuery}
+        handleAISubmit={handleAISubmit}
+        isLoading={isLoading}
+        chatContainerRef={chatContainerRef}
+        handleClearChat={handleClearChat}
+      />
+    </nav>
+  );
+};
+
+export default Navbar;

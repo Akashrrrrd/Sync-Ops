@@ -1,0 +1,194 @@
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #10b981;
+  --background-color: #f3f4f6;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --card-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.workworkflow-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 2rem;
+  background-color: var(--background-color);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.workworkflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+.workworkflow-header h1 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.workworkflow-header-stats {
+  display: flex;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.workworkflow-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.workworkflow-navigation button {
+  padding: 1rem;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.workworkflow-navigation button:hover {
+  background-color: var(--secondary-color);
+}
+
+.workworkflow-navigation .active {
+  background-color: var(--secondary-color);
+}
+
+.workworkflow-management {
+  display: flex;
+  flex-direction: column;
+}
+
+.workworkflow-actions {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.workworkflow-actions button {
+  padding: 1rem;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.workworkflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.workworkflow-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.workworkflow-card:hover {
+  transform: translateY(-10px);
+}
+
+.workworkflow-card.selected {
+  border: 2px solid var(--primary-color);
+}
+
+.workworkflow-card h3 {
+  color: var(--primary-color);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.workworkflow-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.workworkflow-task-panel {
+  margin-top: 2rem;
+}
+
+.workworkflow-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.worktask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.worktask-item {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.worktask-item:hover {
+  background-color: #e5e7eb;
+}
+
+.worktask-item.pending {
+  background-color: #fef3c7;
+}
+
+.worktask-item.in_progress {
+  background-color: #bfdbfe;
+}
+
+.worktask-item.completed {
+  background-color: #d1fae5;
+}
+
+.workworkflow-analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.workanalytics-summary {
+  display: flex;
+  gap: 2rem;
+}
+
+.workanalytics-card {
+  padding: 2rem;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: var(--card-shadow);
+  flex: 1;
+}
+
+.workanalytics-card h3 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+.workanalytics-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+}
