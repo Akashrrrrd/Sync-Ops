@@ -20,7 +20,7 @@
     "chrome-ai": "^1.11.1",
     "dompurify": "^3.2.1",
     "dotenv": "^16.4.5",
-    "fabric": "^6.4.3",
+    "fabric": "^6.5.1",
     "framer-motion": "^11.11.17",
     "i18next": "^23.16.5",
     "immer": "^10.1.1",

@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { marked } from "marked"; // Add marked import
+import DOMPurify from "dompurify"; // Add DOMPurify import
 import "./Navbar.css";
 import "./AIModal.css";
 import logo from "./../../assets/logo.png";
@@ -8,19 +10,57 @@ import logo from "./../../assets/logo.png";
 const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 const STORAGE_KEY = "ai_chat_history";
 
+// Configure marked options
+marked.setOptions({
+  breaks: true, // Enable line breaks
+  gfm: true, // Enable GitHub Flavored Markdown
+  headerIds: false, // Disable header IDs to prevent XSS
+  mangle: false, // Disable mangling to prevent XSS
+});
+
 // Chat Message Component
-const ChatMessage = ({ message }) => (
-  <div
-    className={`chat-message ${
-      message.type === "user" ? "user-message" : "ai-message"
-    }`}
-  >
-    <div className="message-content">
-      <p>{message.content}</p>
-      <span className="message-timestamp">{message.timestamp}</span>
+const ChatMessage = ({ message }) => {
+  // Function to safely render markdown content
+  const renderMarkdown = (content) => {
+    // First convert markdown to HTML
+    const rawHtml = marked(content);
+    // Then sanitize the HTML
+    const sanitizedHtml = DOMPurify.sanitize(rawHtml, {
+      ALLOWED_TAGS: [
+        "p",
+        "br",
+        "strong",
+        "em",
+        "code",
+        "pre",
+        "blockquote",
+        "ul",
+        "ol",
+        "li",
+        "a",
+      ],
+      ALLOWED_ATTR: ["href", "target", "rel"],
+    });
+
+    return { __html: sanitizedHtml };
+  };
+
+  return (
+    <div
+      className={`chat-message ${
+        message.type === "user" ? "user-message" : "ai-message"
+      }`}
+    >
+      <div className="message-content">
+        <div
+          dangerouslySetInnerHTML={renderMarkdown(message.content)}
+          className="markdown-content"
+        />
+        <span className="message-timestamp">{message.timestamp}</span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Loading Indicator Component
 const LoadingIndicator = () => (
@@ -123,7 +163,7 @@ const AIModal = ({
           <div className="chat-input-container">
             <textarea
               className="chat-input"
-              placeholder="Type your message..."
+              placeholder="Type your message... (Markdown supported)"
               value={aiQuery}
               onChange={(e) => setAIQuery(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -166,7 +206,7 @@ const ProfileMenu = ({
     {isLoggedIn ? (
       <>
         <button className="profile-button" onClick={toggleProfileMenu}>
-          <span className="profile-name">Akash</span>
+          <span className="profile-name">Profile</span>
           <svg
             className="chevron-icon"
             fill="none"
