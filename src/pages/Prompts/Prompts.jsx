@@ -1,234 +1,199 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState, useEffect } from "react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Prompts.css";
 
-const Prompts = () => {
-  const { t, i18n } = useTranslation();
-  const [inputQuery, setInputQuery] = useState("");
-  const [responseText, setResponseText] = useState("");
+const DynamicPrompts = () => {
+  // State Variables
+  const [userInput, setUserInput] = useState("");
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [suggestions] = useState([
-    "How AI works",
-    "What is machine learning?",
-    "Explain deep learning",
-    "Artificial Intelligence is the future",
-    "Machine Learning helps in predictions",
-  ]);
+  const [promptHistory, setPromptHistory] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Hardcoded API key (not recommended for production)
-  const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
+  // API Configuration
+  const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ"; // Replace with secure key management
+  const genAI = new GoogleGenerativeAI(API_KEY);
 
-  // Comprehensive manual translations
-  const manualTranslations = {
-    "how ai works": "Cómo funciona la IA",
-    "what is machine learning?": "¿Qué es el aprendizaje automático?",
-    "explain deep learning": "Explicar el aprendizaje profundo",
-    "artificial intelligence is the future":
-      "La inteligencia artificial es el futuro",
-    "machine learning helps in predictions":
-      "El aprendizaje automático ayuda en las predicciones",
-  };
-
-  // Enhanced language switch with animation
-  const handleLanguageSwitch = useCallback(() => {
-    const newLang = i18n.language === "en" ? "es" : "en";
-    i18n.changeLanguage(newLang);
-
-    const container = document.querySelector(".prompts-container");
-    container.classList.add("language-switch");
-    setTimeout(() => container.classList.remove("language-switch"), 500);
-  }, [i18n]);
-
-  // Comprehensive query translation method
-  const sendQuery = async () => {
-    if (!inputQuery.trim()) {
-      toast.error(t("Please enter a query"));
+  // Handler to Generate Prompts
+  const generatePrompt = async () => {
+    if (!userInput.trim()) {
+      showToast("Enter a topic to spark AI creativity", "error");
       return;
     }
 
     setLoading(true);
-    setError("");
-    setSuccess(false);
-    setResponseText("");
+    setError(null);
 
     try {
-      // First, check manual translations
-      const normalizedInput = inputQuery.trim().toLowerCase();
-      const manualTranslation = manualTranslations[normalizedInput];
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const promptTemplate = `
+        Advanced AI Prompt Generation:
+        - Transform the topic: "${userInput}"
+        - Generate a multi-dimensional, thought-provoking prompt
+        - Include strategic angles, innovative perspectives
+        - Craft a prompt that challenges conventional thinking
+        - Ensure actionable and inspiring content
+      `;
 
-      if (manualTranslation) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setResponseText(manualTranslation);
-        setSuccess(true);
-        setLoading(false);
-        toast.success(t("Translation found!"));
-        return;
-      }
+      const result = await model.generateContent(promptTemplate);
+      const response = await result.response;
+      const text = response.text();
 
-      // Fallback to Gemini API for translation
-      const targetLanguage = i18n.language === "en" ? "Spanish" : "English";
+      // Sanitize and Markdown the generated text
+      const sanitizedText = DOMPurify.sanitize(text);
+      const markedText = marked(sanitizedText);
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `Translate the following text to ${targetLanguage} in a clear and concise manner: "${inputQuery}"`,
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 200,
-            },
-          }),
-        }
-      );
+      // Update state
+      setGeneratedPrompt(markedText);
+      setPromptHistory((prev) => [
+        { id: Date.now(), topic: userInput, prompt: markedText },
+        ...prev.slice(0, 9),
+      ]);
 
-      if (!response.ok) {
-        throw new Error("Translation request failed");
-      }
-
-      const data = await response.json();
-      const translatedText = data.candidates[0].content.parts[0].text.trim();
-
-      setResponseText(translatedText);
-      setSuccess(true);
-      toast.success(t("Translation successful!"));
+      showToast("Prompt Generated Successfully!", "success");
     } catch (err) {
-      console.error("Translation error", err);
-      setError(t("Unable to translate. Please try a different query."));
-      toast.error(t("Unable to translate. Please try again."));
+      console.error("Prompt Generation Error:", err);
+      showToast("AI Creativity Unavailable. Try Again.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  // Copy to clipboard functionality
-  const handleCopyToClipboard = () => {
-    if (responseText) {
-      navigator.clipboard
-        .writeText(responseText)
-        .then(() => {
-          toast.success(t("Text copied to clipboard!"));
-        })
-        .catch((err) => {
-          toast.error(t("Failed to copy text"));
-          console.error(err);
-        });
+  // Utility Functions
+  const resetFields = () => {
+    setUserInput("");
+    setGeneratedPrompt("");
+    setError(null);
+    showToast("Fields Reset", "info");
+  };
+
+  const clearHistory = () => {
+    setPromptHistory([]);
+    showToast("Prompt History Cleared", "info");
+  };
+
+  const copyToClipboard = (text) => {
+    const plainText = text.replace(/<[^>]*>/g, "");
+    navigator.clipboard.writeText(plainText);
+    showToast("Prompt Copied! 🚀", "success");
+  };
+
+  const showToast = (message, type) => {
+    const options = {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+    };
+    switch (type) {
+      case "success":
+        toast.success(message, options);
+        break;
+      case "error":
+        toast.error(message, options);
+        break;
+      case "info":
+        toast.info(message, options);
+        break;
+      default:
+        toast(message, options);
     }
   };
 
-  // Keyboard submission handler
   const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !loading) {
-      sendQuery();
-    }
+    if (e.key === "Enter") generatePrompt();
   };
 
-  // Suggestion click handler
-  const handleSuggestionClick = (suggestion) => {
-    setInputQuery(suggestion);
-    setResponseText("");
-    setError("");
-  };
-
-  // Reset states on input change
-  useEffect(() => {
-    setResponseText("");
-    setError("");
-    setSuccess(false);
-  }, [inputQuery]);
-
+  // Render
   return (
-    <div className="prompts-container">
+    <div className="dp-prompt-forge-container">
       <ToastContainer />
-      <div className="prompts-content">
-        <h2 className="prompts-heading">💬 {t("AI Powered Assistance")}</h2>
+      <div className="dp-neural-overlay"></div>
+      <div className="dp-content-wrapper">
+        <h1 className="dp-prompt-forge-title">
+          <span className="dp-ai-gradient-text">Prompt Forge AI</span>
+        </h1>
+        <p className="dp-prompt-subtitle">
+          Unleash Boundless Creativity Through Intelligent Prompting
+        </p>
 
-        <div className="prompts-search-bar">
-          <div className="search-input-wrapper">
-            <span className="search-icon">🔍</span>
+        <div className="dp-input-zone">
+          <div className="dp-input-wrapper">
             <input
               type="text"
-              className="prompts-search-input"
-              placeholder={t("Search for tasks or content...")}
-              value={inputQuery}
-              onChange={(e) => setInputQuery(e.target.value)}
+              placeholder="Spark an AI-Driven Exploration..."
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              aria-label={t("Query input")}
+              className="dp-neural-input"
+              disabled={loading}
             />
+            <div className="dp-input-icon">🧠</div>
           </div>
-          <button
-            className={`prompts-toggle-button ${loading ? "loading" : ""}`}
-            onClick={sendQuery}
-            disabled={loading}
-            aria-label={t("Submit query")}
-          >
-            {loading ? "⏳" : t("Submit")}
-          </button>
-        </div>
 
-        <div className="prompts-suggestions">
-          {suggestions.map((suggestion, index) => (
+          <div className="dp-action-cluster">
             <button
-              key={index}
-              className="suggestion-chip"
-              onClick={() => handleSuggestionClick(suggestion)}
+              onClick={generatePrompt}
+              className="dp-forge-btn"
+              disabled={loading}
             >
-              {suggestion}
+              {loading ? "Forging Prompt..." : "Spark Creativity"}
             </button>
-          ))}
+            <button onClick={resetFields} className="dp-reset-btn">
+              🔄 Reset
+            </button>
+          </div>
         </div>
 
-        {error && <div className="error-alert">⚠️ {error}</div>}
-
-        {(responseText || loading) && (
-          <div className="prompts-grid">
-            <div className={`prompts-card ${loading ? "loading" : ""}`}>
-              <h3 className="prompts-card-heading">{t("Response")}</h3>
-              <p className="prompts-response">
-                {loading ? t("Translating...") : responseText}
-              </p>
-
-              {/* Copy button */}
+        {generatedPrompt && (
+          <div className="dp-prompt-emergence">
+            <div className="dp-emergence-header">
+              <h2 className="dp-emergence-title">Generated Prompt Catalyst</h2>
               <button
-                className="copy-button"
-                onClick={handleCopyToClipboard}
-                disabled={loading || !responseText}
-                aria-label={t("Copy to clipboard")}
+                onClick={() => copyToClipboard(generatedPrompt)}
+                className="dp-copy-btn"
               >
-                📋 {t("Copy")}
+                📋 Copy Prompt
               </button>
             </div>
+            <div
+              className="dp-prompt-display"
+              dangerouslySetInnerHTML={{ __html: generatedPrompt }}
+            />
           </div>
         )}
 
-        <div className="prompts-language-toggle">
-          <button
-            className="language-switch-button"
-            onClick={handleLanguageSwitch}
-            aria-label={t("Switch language")}
-          >
-            🌐{" "}
-            {i18n.language === "en" ? "Switch to Español" : "Switch to English"}
-          </button>
-        </div>
+        {promptHistory.length > 0 && (
+          <div className="dp-creative-memory">
+            <div className="dp-memory-header">
+              <h3>Prompt Exploration Archive</h3>
+              <button onClick={clearHistory} className="dp-clear-history-btn">
+                🗑️ Clear History
+              </button>
+            </div>
+            <div className="dp-history-scroll">
+              {promptHistory.map((item) => (
+                <div key={item.id} className="dp-memory-trace">
+                  <span className="dp-trace-topic">{item.topic}</span>
+                  <div className="dp-trace-actions">
+                    <button
+                      onClick={() => copyToClipboard(item.prompt)}
+                      className="dp-trace-copy"
+                    >
+                      📋
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default Prompts;
+export default DynamicPrompts;
