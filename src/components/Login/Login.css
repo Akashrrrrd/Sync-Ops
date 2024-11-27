@@ -157,12 +157,12 @@
 .login-auth-input-row {
   display: flex;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .login-auth-input-group {
   flex: 1;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .login-auth-input-group label {
@@ -302,46 +302,39 @@
 
 .login-auth-social-buttons {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  justify-content: center;
+  gap: 20px; /* Slight gap between buttons */
+  margin: 20px 0; /* Vertical margin for spacing */
 }
 
 .login-auth-social-button {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  border: 1px solid var(--ai-border);
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
+  width: 50px; /* Adjust the button size to fit the icon */
+  height: 50px;
+  background-color: #ffffff; /* Clean white background */
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
   cursor: pointer;
-  transition: all 0.3s ease;
-  gap: 0.5rem;
+  padding: 0; /* Remove any padding */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .login-auth-social-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--ai-shadow);
+  transform: scale(1.1); /* Slight zoom on hover */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
 
-.login-auth-github {
-  background-color: #24292e;
-  color: white;
+.login-auth-social-button:active {
+  transform: scale(1); /* Reset zoom on click */
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.1); /* Reduced shadow on click */
 }
 
-.login-auth-github:hover {
-  background-color: #2f363d;
-}
-
-.login-auth-facebook {
-  background-color: #1877f2;
-  color: white;
-}
-
-.login-auth-facebook:hover {
-  background-color: #166fe5;
+.social-icon {
+  width: 30px; /* Icon size that fits the button */
+  height: 30px;
 }
 
 .login-auth-switch {

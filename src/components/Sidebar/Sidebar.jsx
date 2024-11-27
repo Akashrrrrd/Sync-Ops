@@ -11,6 +11,7 @@ import {
   FaChartLine,
   FaBrain,
   FaUserSecret,
+  FaMicrophoneAlt,
   FaUniversalAccess,
   FaCommentDots,
   FaProjectDiagram,
@@ -79,10 +80,10 @@ const Sidebar = () => {
       link: "/content-anonymizer",
     },
     {
-      icon: <FaUniversalAccess />,
-      name: "AI Accessibility",
-      link: "/accessibility-enhancer",
-    },
+      icon: <FaMicrophoneAlt />,
+      name: "VocalScript",
+      link: "/vocal-script",
+    },    
   ];
 
   return (

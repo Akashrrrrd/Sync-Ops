@@ -10,7 +10,7 @@ const IdeaGeneration = () => {
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("all");
   const [aiConfidence, setAiConfidence] = useState(0);
-  const [savedIdeas, setSavedIdeas] = useState([]);
+  const [copiedIdeas, setCopiedIdeas] = useState([]);
   const [showTips, setShowTips] = useState(false);
 
   const categories = [
@@ -138,11 +138,23 @@ const IdeaGeneration = () => {
     }
   };
 
-  const saveIdea = (idea) => {
-    if (!savedIdeas.some((saved) => saved.id === idea.id)) {
-      setSavedIdeas((prev) => [...prev, idea]);
-      showNotification("Idea saved successfully!");
-    }
+  const copyIdea = (idea) => {
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(
+        `${idea.category} Idea (${idea.confidence}% Match):\n${idea.text}`
+      )
+      .then(() => {
+        // Add to copied ideas to show visual feedback
+        if (!copiedIdeas.some((copied) => copied.id === idea.id)) {
+          setCopiedIdeas((prev) => [...prev, idea]);
+          showNotification("Idea copied to clipboard!");
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+        showNotification("Failed to copy idea", "error");
+      });
   };
 
   const showNotification = (message, type = "info") => {
@@ -259,13 +271,15 @@ const IdeaGeneration = () => {
                 <p className="idea-text">{idea.text}</p>
                 <div className="idea-card-footer">
                   <button
-                    className="save-button"
-                    onClick={() => saveIdea(idea)}
-                    disabled={savedIdeas.some((saved) => saved.id === idea.id)}
+                    className="copy-button"
+                    onClick={() => copyIdea(idea)}
+                    disabled={copiedIdeas.some(
+                      (copied) => copied.id === idea.id
+                    )}
                   >
-                    {savedIdeas.some((saved) => saved.id === idea.id)
-                      ? "Saved"
-                      : "Save Idea"}
+                    {copiedIdeas.some((copied) => copied.id === idea.id)
+                      ? "Copied"
+                      : "Copy Idea"}
                   </button>
                 </div>
               </div>

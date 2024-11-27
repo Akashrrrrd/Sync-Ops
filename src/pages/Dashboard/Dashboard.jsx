@@ -45,7 +45,7 @@ const Dashboard = () => {
         </div>
         <div className="header-actions">
           {/* <button className="action-button">Create Task</button> */}
-          <button className="action-button">Schedule Meeting</button>
+          {/* <button className="action-button">Schedule Meeting</button> */}
           {/* <button className="theme-switcher" onClick={toggleDarkMode}>
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button> */}
@@ -131,27 +131,43 @@ const Dashboard = () => {
         <ul>
           <li>
             <span className="activity-time">10:45 AM</span>
-            <span className="activity-user">John D.</span>
+            <span className="activity-user">Rajesh Sharma</span>
             <span className="activity-action">completed task</span>
-            <span className="activity-item">"Update user authentication"</span>
+            <span className="activity-item">
+              "Implement user authentication"
+            </span>
           </li>
           <li>
             <span className="activity-time">09:30 AM</span>
-            <span className="activity-user">Sarah M.</span>
+            <span className="activity-user">Priya Patel</span>
             <span className="activity-action">created project</span>
-            <span className="activity-item">"Mobile App v2"</span>
+            <span className="activity-item">"E-commerce Platform"</span>
           </li>
           <li>
             <span className="activity-time">Yesterday</span>
-            <span className="activity-user">Team B</span>
+            <span className="activity-user">Amit Kumar</span>
             <span className="activity-action">reached milestone</span>
-            <span className="activity-item">"Backend API v1.0"</span>
+            <span className="activity-item">
+              "Backend Microservices Architecture"
+            </span>
           </li>
           <li>
             <span className="activity-time">2 days ago</span>
-            <span className="activity-user">Michael R.</span>
+            <span className="activity-user">Anjali Reddy</span>
             <span className="activity-action">scheduled meeting</span>
-            <span className="activity-item">"Q3 Planning Session"</span>
+            <span className="activity-item">"Quarterly Innovation Review"</span>
+          </li>
+          <li>
+            <span className="activity-time">3 days ago</span>
+            <span className="activity-user">Vikram Singh</span>
+            <span className="activity-action">reviewed code</span>
+            <span className="activity-item">"Payment Gateway Integration"</span>
+          </li>
+          <li>
+            <span className="activity-time">Last week</span>
+            <span className="activity-user">Neha Mehta</span>
+            <span className="activity-action">deployed release</span>
+            <span className="activity-item">"Customer Feedback Module"</span>
           </li>
         </ul>
       </div>

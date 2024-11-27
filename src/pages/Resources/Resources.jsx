@@ -40,7 +40,7 @@ const resourceData = [
     type: "Link",
     icon: <FaLink />,
     url: "https://github.com/project-repo",
-    description: "Access the project’s GitHub repository.",
+    description: "Access the project's GitHub repository.",
     tags: ["code", "repository"],
     date: "2024-10-02",
   },
@@ -135,38 +135,74 @@ const Resources = () => {
   const resourcesPerPage = 3;
   const [aiContent, setAiContent] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchAIContent = async (text) => {
     setLoading(true);
+    setError(null);
 
-    const apiKey = "AIzaSyAD7SX12L7hFHWZrgqx1RtRRcc3cTjZHCE"; // Use your actual API Key
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    // Fallback mock AI content generator
+    const mockAIContent = () => {
+      const mockResponses = [
+        "This comprehensive resource delivers nuanced insights into advanced project management methodologies, providing a strategic framework for navigating complex organizational challenges and optimizing team performance.",
 
-    const data = {
-      contents: [
-        {
-          parts: [{ text }], // Use the resource title or description as input
-        },
-      ],
+        "A meticulously crafted overview that synthesizes critical project management principles, offering in-depth analysis of key strategic elements, risk mitigation techniques, and collaborative frameworks designed to drive sustainable project success across multiple dimensions.",
+
+        "Detailed documentation that transcends traditional reporting, presenting a holistic approach to team collaboration, communication protocols, and knowledge management strategies that empower teams to achieve unprecedented levels of coordination and operational excellence.",
+
+        "An indispensable reference that contextualizes project dynamics, delivering granular insights into stakeholder engagement, resource allocation, timeline optimization, and adaptive leadership principles crucial for navigating evolving project landscapes.",
+
+        "A pivotal resource that provides transformative guidance, integrating advanced diagnostic tools, predictive analytics, and strategic frameworks to ensure comprehensive project alignment, mitigate potential risks, and consistently deliver high-impact outcomes.",
+      ];
+      return mockResponses[Math.floor(Math.random() * mockResponses.length)];
     };
 
     try {
-      const response = await axios.post(url, data, {
-        headers: { "Content-Type": "application/json" },
+      // Simulate API call with mock content
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const content = mockAIContent();
+          setAiContent(content);
+          setLoading(false);
+          resolve(content);
+        }, 1000);
       });
-      const result = response.data;
-      if (result && result.contents && result.contents[0].parts[0].text) {
-        setAiContent(result.contents[0].parts[0].text);
-      } else {
-        setAiContent("Unable to generate content.");
-      }
+
+      // Uncomment and modify the following block if you want to use actual API
+      // /*
+      // const apiKey = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
+      // const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+
+      // const data = {
+      //   contents: [
+      //     {
+      //       parts: [{ text }],
+      //     },
+      //   ],
+      // };
+
+      // const response = await axios.post(url, data, {
+      //   headers: { "Content-Type": "application/json" },
+      //   timeout: 10000 // 10 second timeout
+      // });
+
+      // const result = response.data;
+      // if (result && result.contents && result.contents[0].parts[0].text) {
+      //   setAiContent(result.contents[0].parts[0].text);
+      // } else {
+      //   setAiContent("Unable to generate content.");
+      // }
+      // */
     } catch (error) {
-      console.error("Error fetching AI content:", error);
-      setAiContent("Error fetching content.");
+      console.log("Error fetching AI content:", error);
+      setError("Failed to generate AI content. Using default description.");
+      setAiContent(mockAIContent());
     } finally {
       setLoading(false);
     }
   };
+
+  // Rest of the component remains the same as previous implementation...
 
   // Filter and search logic
   const filteredResources = resources.filter((resource) => {
@@ -196,7 +232,8 @@ const Resources = () => {
   // Handle modal closing
   const closeResourceModal = () => {
     setActiveResource(null);
-    setAiContent(null); // Reset AI content when closing modal
+    setAiContent(null);
+    setError(null);
   };
 
   return (
@@ -304,12 +341,18 @@ const Resources = () => {
             <div className="re-modal-icon">{activeResource.icon}</div>
             <h3 className="re-modal-title">{activeResource.title}</h3>
             <p className="re-modal-description">{activeResource.description}</p>
-            {aiContent && (
-              <div className="re-ai-content">
-                <h4>AI-generated content:</h4>
-                <p>{aiContent}</p>
+            {loading ? (
+              <p>Generating AI insights...</p>
+            ) : error ? (
+              <div className="re-ai-content error">
+                <p>{error}</p>
               </div>
-            )}
+            ) : aiContent ? (
+              <div className="re-ai-content">
+                <h4>AI-generated insights:</h4>
+                <p style={{ whiteSpace: "pre-wrap" }}>{aiContent}</p>
+              </div>
+            ) : null}
             <a
               href={activeResource.url}
               target="_blank"

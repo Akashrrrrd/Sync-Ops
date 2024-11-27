@@ -98,10 +98,7 @@ const App = () => {
                     path="/content-anonymizer"
                     element={<ContentAnonymizer />}
                   />
-                  <Route
-                    path="/accessibility-enhancer"
-                    element={<AIAccessibility />}
-                  />
+                  <Route path="/vocal-script" element={<AIAccessibility />} />
                 </Routes>
               </div>
             </div>

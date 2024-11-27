@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./Login.css";
 import logo from "./../../assets/logo.png";
+import google_icon from "./../../assets/google-icon.png";
+import github_icon from "./../../assets/github-icon.png";
 
 const Login = ({ onLogin, onSignup }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -43,6 +45,7 @@ const Login = ({ onLogin, onSignup }) => {
   return (
     <div className="login-auth-container">
       <div className="login-auth-content">
+        {/* Logo Section */}
         <div className="login-auth-logo-container">
           <img src={logo} alt="SyncOps Logo" className="login-auth-logo" />
           <h2>
@@ -50,6 +53,8 @@ const Login = ({ onLogin, onSignup }) => {
           </h2>
           <p>Team Collaboration and Tools for Large Scale Projects</p>
         </div>
+
+        {/* Form Section */}
         <div className="login-auth-form-container">
           <h2 className="login-auth-title">
             {isLogin
@@ -62,7 +67,10 @@ const Login = ({ onLogin, onSignup }) => {
               : "Sign up to start collaborating on large-scale projects"}
           </p>
           {error && <div className="login-auth-error">{error}</div>}
+
+          {/* Form */}
           <form onSubmit={handleSubmit} className="login-auth-form">
+            {/* Signup Fields */}
             {!isLogin && (
               <div className="login-auth-input-row">
                 <div className="login-auth-input-group">
@@ -93,6 +101,8 @@ const Login = ({ onLogin, onSignup }) => {
                 </div>
               </div>
             )}
+
+            {/* Common Fields */}
             <div className="login-auth-input-group">
               <label htmlFor="email">Email Address</label>
               <div className="login-input-wrapper">
@@ -107,6 +117,7 @@ const Login = ({ onLogin, onSignup }) => {
                 <span className="login-input-icon">✉️</span>
               </div>
             </div>
+
             <div className="login-auth-input-group">
               <label htmlFor="password">Password</label>
               <div className="login-input-wrapper">
@@ -130,34 +141,27 @@ const Login = ({ onLogin, onSignup }) => {
                 </button>
               </div>
             </div>
-            <div className="login-auth-input-group">
-              <label htmlFor="adminBoard">Select Admin Panel</label>
-              <select
-                id="adminBoard"
-                value={adminBoard}
-                onChange={(e) => setAdminBoard(e.target.value)}
-                className="login-auth-select"
-              >
-                <option value="hm">HM</option>
-                <option value="manager">Manager</option>
-                <option value="members">Members</option>
-              </select>
-            </div>
+
+            {/* Submit Button */}
             <button type="submit" className="login-auth-button">
               {isLogin ? "Log In" : "Sign Up"}
             </button>
           </form>
+
+          {/* Social Login */}
           <div className="login-auth-separator">
             <span>OR</span>
           </div>
           <div className="login-auth-social-buttons">
-            <button className="login-auth-social-button login-auth-github">
-              Continue with GitHub
+            <button className="login-auth-social-button login-auth-google">
+              <img src={google_icon} alt="Google" className="social-icon" />
             </button>
-            <button className="login-auth-social-button login-auth-facebook">
-              Continue with Facebook
+            <button className="login-auth-social-button login-auth-github">
+              <img src={github_icon} alt="GitHub" className="social-icon" />
             </button>
           </div>
+
+          {/* Switch between login and signup */}
           <div className="login-auth-switch">
             <p>
               {isLogin
