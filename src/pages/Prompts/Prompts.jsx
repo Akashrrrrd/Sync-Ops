@@ -15,7 +15,7 @@ const DynamicPrompts = () => {
   const [error, setError] = useState(null);
 
   // API Configuration
-  const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ"; // Replace with secure key management
+  const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
   const genAI = new GoogleGenerativeAI(API_KEY);
 
   // Handler to Generate Prompts
@@ -31,13 +31,13 @@ const DynamicPrompts = () => {
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       const promptTemplate = `
-        Advanced AI Prompt Generation:
-        - Transform the topic: "${userInput}"
-        - Generate a multi-dimensional, thought-provoking prompt
-        - Include strategic angles, innovative perspectives
-        - Craft a prompt that challenges conventional thinking
-        - Ensure actionable and inspiring content
-      `;
+    Professional Prompt Refinement:
+    - Subject Focus: "${userInput}"
+    - Develop a sophisticated, multi-dimensional prompt that encourages exploration of innovative ideas.
+    - Integrate diverse strategic perspectives to ensure depth and originality.
+    - Emphasize clarity, relevance, and actionable insights to drive meaningful outcomes.
+    - Ensure the prompt inspires creative and forward-thinking responses.
+  `;
 
       const result = await model.generateContent(promptTemplate);
       const response = await result.response;
@@ -109,79 +109,81 @@ const DynamicPrompts = () => {
 
   // Render
   return (
-    <div className="dp-prompt-forge-container">
+    <div className="dypr-prompt-forge-container">
       <ToastContainer />
-      <div className="dp-neural-overlay"></div>
-      <div className="dp-content-wrapper">
-        <h1 className="dp-prompt-forge-title">
-          <span className="dp-ai-gradient-text">Prompt Forge AI</span>
+      <div className="dypr-neural-overlay"></div>
+      <div className="dypr-content-wrapper">
+        <h1 className="dypr-prompt-forge-title">
+          <span className="dypr-ai-gradient-text">Prompt Forge AI</span>
         </h1>
-        <p className="dp-prompt-subtitle">
+        <p className="dypr-prompt-subtitle">
           Unleash Boundless Creativity Through Intelligent Prompting
         </p>
 
-        <div className="dp-input-zone">
-          <div className="dp-input-wrapper">
+        <div className="dypr-input-zone">
+          <div className="dypr-input-wrapper">
             <input
               type="text"
               placeholder="Spark an AI-Driven Exploration..."
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="dp-neural-input"
+              className="dypr-neural-input"
               disabled={loading}
             />
-            <div className="dp-input-icon">🧠</div>
+            <div className="dypr-input-icon">🧠</div>
           </div>
 
-          <div className="dp-action-cluster">
+          <div className="dypr-action-cluster">
             <button
               onClick={generatePrompt}
-              className="dp-forge-btn"
+              className="dypr-forge-btn"
               disabled={loading}
             >
               {loading ? "Forging Prompt..." : "Spark Creativity"}
             </button>
-            <button onClick={resetFields} className="dp-reset-btn">
+            <button onClick={resetFields} className="dypr-reset-btn">
               🔄 Reset
             </button>
           </div>
         </div>
 
         {generatedPrompt && (
-          <div className="dp-prompt-emergence">
-            <div className="dp-emergence-header">
-              <h2 className="dp-emergence-title">Generated Prompt Catalyst</h2>
+          <div className="dypr-prompt-emergence">
+            <div className="dypr-emergence-header">
+              <h2 className="dypr-emergence-title">
+                Generated Prompt Catalyst
+              </h2>
               <button
                 onClick={() => copyToClipboard(generatedPrompt)}
-                className="dp-copy-btn"
+                className="dypr-copy-btn"
               >
                 📋 Copy Prompt
               </button>
             </div>
             <div
-              className="dp-prompt-display"
+              className="dypr-prompt-display"
               dangerouslySetInnerHTML={{ __html: generatedPrompt }}
             />
           </div>
         )}
 
         {promptHistory.length > 0 && (
-          <div className="dp-creative-memory">
-            <div className="dp-memory-header">
+          <div className="dypr-creative-memory">
+            <div className="dypr-memory-header">
               <h3>Prompt Exploration Archive</h3>
-              <button onClick={clearHistory} className="dp-clear-history-btn">
+              <button onClick={clearHistory} className="dypr-clear-history-btn">
                 🗑️ Clear History
               </button>
             </div>
-            <div className="dp-history-scroll">
+            <div className="dypr-history-scroll">
               {promptHistory.map((item) => (
-                <div key={item.id} className="dp-memory-trace">
-                  <span className="dp-trace-topic">{item.topic}</span>
-                  <div className="dp-trace-actions">
+                <div key={item.id} className="dypr-memory-trace">
+                  <span className="dypr-trace-topic">{item.topic}</span>
+                  <div className="dypr-trace-actions">
                     <button
                       onClick={() => copyToClipboard(item.prompt)}
-                      className="dp-trace-copy"
+                      className="dypr-trace-copy"
                     >
                       📋
                     </button>

@@ -19,7 +19,7 @@
 .data-data-insights {
   max-width: 1200px;
   margin: 40px auto;
-  padding: 2rem;
+  padding: 2.5rem;
   background-color: var(--bg-primary);
   border-radius: var(--radius);
   box-shadow: var(--shadow-light);

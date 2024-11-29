@@ -15,9 +15,9 @@ const AIAccessibility = () => {
   const fileInputRef = useRef(null);
 
   // API Configuration
-  const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ"; // Replace with your actual API key
-  const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
-  const VISION_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+  const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
+  const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+  const VISION_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${API_KEY}`;
 
   // Constants for video validation
   const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
@@ -27,7 +27,7 @@ const AIAccessibility = () => {
     if (mode === "speech") {
       const loadVoices = () => {
         const availableVoices = window.speechSynthesis.getVoices();
-        setVoices(availableVoices);
+        setVoices(availableVoices.length ? availableVoices : []);
       };
 
       window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -73,14 +73,13 @@ const AIAccessibility = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        throw new Error("AI text processing failed");
       }
 
       const data = await response.json();
       return data.candidates[0].content.parts[0].text;
     } catch (err) {
       console.error("AI Processing Error:", err);
-      setError("Error processing with AI. Using original text.");
       return text;
     } finally {
       setIsLoading(false);
@@ -88,7 +87,7 @@ const AIAccessibility = () => {
   };
 
   const extractFrameFromVideo = async (videoFile) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const video = document.createElement("video");
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -106,7 +105,9 @@ const AIAccessibility = () => {
         );
       };
 
+      video.onerror = reject;
       video.src = URL.createObjectURL(videoFile);
+      video.load();
     });
   };
 
@@ -125,7 +126,6 @@ const AIAccessibility = () => {
       setIsProcessing(true);
       setError(null);
 
-      // Extract a frame from the video
       const frameBlob = await extractFrameFromVideo(videoFile);
       const frameBase64 = await new Promise((resolve) => {
         const reader = new FileReader();
@@ -160,42 +160,18 @@ const AIAccessibility = () => {
             topP: 1,
             maxOutputTokens: 2048,
           },
-          safetySettings: [
-            {
-              category: "HARM_CATEGORY_HARASSMENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE",
-            },
-            {
-              category: "HARM_CATEGORY_HATE_SPEECH",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE",
-            },
-            {
-              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE",
-            },
-            {
-              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-              threshold: "BLOCK_MEDIUM_AND_ABOVE",
-            },
-          ],
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || "Failed to process video");
+        throw new Error("Video processing failed");
       }
 
       const data = await response.json();
-
-      if (!data.candidates || !data.candidates[0]?.content?.parts?.length) {
-        throw new Error("Invalid response format from AI service");
-      }
-
       setContent(data.candidates[0].content.parts[0].text);
     } catch (err) {
       console.error("Video Processing Error:", err);
-      setError(`Error processing video: ${err.message}`);
+      setError("Failed to process video");
     } finally {
       setIsProcessing(false);
     }
@@ -211,9 +187,9 @@ const AIAccessibility = () => {
       const enhancedText = await processWithAI(content);
       const speech = new SpeechSynthesisUtterance(enhancedText);
 
-      const selectedVoiceObj = voices.find(
-        (voice) => voice.lang === selectedVoice
-      );
+      const selectedVoiceObj =
+        voices.find((voice) => voice.lang === selectedVoice) || voices[0];
+
       if (selectedVoiceObj) {
         speech.voice = selectedVoiceObj;
       }
@@ -223,16 +199,16 @@ const AIAccessibility = () => {
 
       speech.onstart = () => setIsSpeaking(true);
       speech.onend = () => setIsSpeaking(false);
-      speech.onerror = (event) => {
+      speech.onerror = () => {
         setIsSpeaking(false);
-        setError(`Speech synthesis error: ${event.error}`);
+        setError("Speech synthesis error");
       };
 
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(speech);
     } catch (err) {
       console.error("Speech Error:", err);
-      setError("Failed to convert text to speech. Please try again.");
+      setError("Failed to convert text to speech");
     }
   };
 
@@ -252,7 +228,7 @@ const AIAccessibility = () => {
       setVideoFile(file);
       setVideoUrl(URL.createObjectURL(file));
       setError(null);
-      setContent(""); // Clear previous content
+      setContent("");
     }
   };
 

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import DOMPurify from "dompurify";
+import { marked } from "marked";
 import "./ContentRewrite.css";
 
 const ContentRewrite = () => {
   const [inputContent, setInputContent] = useState("");
   const [rewrittenContent, setRewrittenContent] = useState("");
+  const [rewrittenMarkdown, setRewrittenMarkdown] = useState("");
   const [tone, setTone] = useState("neutral");
   const [loading, setLoading] = useState(false);
   const [wordLimit, setWordLimit] = useState("");
@@ -14,6 +17,7 @@ const ContentRewrite = () => {
   const [wordCount, setWordCount] = useState(0);
   const [saveHistory, setSaveHistory] = useState([]);
   const [showAllHistory, setShowAllHistory] = useState(false);
+  const [displayMode, setDisplayMode] = useState("text"); // Added display mode state
 
   const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 
@@ -116,7 +120,12 @@ const ContentRewrite = () => {
         throw new Error("Invalid response from API");
       }
 
+      // Sanitize and convert to markdown
+      const sanitizedText = DOMPurify.sanitize(rewrittenText);
+      const markdownText = marked(sanitizedText);
+
       setRewrittenContent(rewrittenText);
+      setRewrittenMarkdown(markdownText);
       generateAiSuggestions();
 
       setSaveHistory([
@@ -285,6 +294,19 @@ const ContentRewrite = () => {
                 placeholder="Separate with commas"
               />
             </div>
+
+            {rewrittenContent && (
+              <div className="control-group">
+                <label>Display Mode:</label>
+                <select
+                  value={displayMode}
+                  onChange={(e) => setDisplayMode(e.target.value)}
+                >
+                  <option value="text">Plain Text</option>
+                  <option value="markdown">Markdown</option>
+                </select>
+              </div>
+            )}
           </div>
 
           <button
@@ -304,11 +326,18 @@ const ContentRewrite = () => {
                 Copy to Clipboard
               </button>
             </div>
-            <textarea
-              className="rewrite-output"
-              readOnly
-              value={rewrittenContent}
-            ></textarea>
+            {displayMode === "text" ? (
+              <textarea
+                className="rewrite-output"
+                readOnly
+                value={rewrittenContent}
+              ></textarea>
+            ) : (
+              <div
+                className="rewrite-output markdown-content"
+                dangerouslySetInnerHTML={{ __html: rewrittenMarkdown }}
+              />
+            )}
 
             <div className="ai-suggestions">
               <h3>AI Writing Suggestions</h3>

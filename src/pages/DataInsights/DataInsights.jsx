@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { marked } from "marked";
-import DOMPurify from "dompurify"; // Import DOMPurify for sanitizing HTML
+import DOMPurify from "dompurify";
 import "./DataInsights.css";
 
 const DataInsights = () => {
@@ -9,9 +9,8 @@ const DataInsights = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const REACT_APP_GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
+  const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ"; // Replace with your actual key
 
-  // Allowed mime types for Gemini API
   const ALLOWED_MIME_TYPES = [
     "image/jpeg",
     "image/png",
@@ -63,10 +62,8 @@ const DataInsights = () => {
       return;
     }
 
-    if (!ALLOWED_MIME_TYPES.includes(dataFile.type)) {
-      setError(
-        `Unsupported file type: ${dataFile.type}. Please upload an image, PDF, or text file.`
-      );
+    if (!API_KEY) {
+      setError("Gemini API key is missing. Please provide a valid key.");
       return;
     }
 
@@ -74,67 +71,60 @@ const DataInsights = () => {
     setError(null);
 
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(dataFile);
+      const base64Data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(dataFile);
+      });
 
-      reader.onloadend = async () => {
-        const base64Data = reader.result.split(",")[1];
-
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${REACT_APP_GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    {
-                      text: "Provide a comprehensive and well-structured analysis of this file. Format the output using Markdown syntax for clarity and presentation.",
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: "Provide a comprehensive and detailed analysis of this file. Use clear, structured Markdown formatting.",
+                  },
+                  {
+                    inlineData: {
+                      mimeType: dataFile.type,
+                      data: base64Data,
                     },
-                    {
-                      inlineData: {
-                        mimeType: dataFile.type,
-                        data: base64Data,
-                      },
-                    },
-                  ],
-                },
-              ],
-              generationConfig: {
-                maxOutputTokens: 2048,
-                temperature: 0.4,
-                topP: 1,
-                topK: 32,
+                  },
+                ],
               },
-            }),
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.error) {
-          throw new Error(data.error.message || "API request failed");
+            ],
+            generationConfig: {
+              maxOutputTokens: 2048,
+              temperature: 0.4,
+            },
+          }),
         }
+      );
 
-        const geminiResponse = data.candidates[0].content.parts[0].text;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API request failed: ${errorText}`);
+      }
 
-        // Parse the Markdown content
-        const sanitizedHTML = DOMPurify.sanitize(marked(geminiResponse));
-        setInsights({
-          markdown: sanitizedHTML,
-        });
+      const data = await response.json();
 
-        setIsLoading(false);
-      };
+      if (data.error) {
+        throw new Error(data.error.message || "API request failed");
+      }
 
-      reader.onerror = (error) => {
-        console.error("File reading error:", error);
-        setError("Failed to read file. Please try again.");
-        setIsLoading(false);
-      };
+      const geminiResponse = data.candidates[0].content.parts[0].text;
+
+      const sanitizedHTML = DOMPurify.sanitize(marked(geminiResponse));
+      setInsights({ markdown: sanitizedHTML });
+      setIsLoading(false);
     } catch (error) {
       console.error("Analysis error:", error);
       setError(`Failed to analyze file: ${error.message}`);
