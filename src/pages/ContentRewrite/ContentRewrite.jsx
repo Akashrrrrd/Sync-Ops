@@ -17,7 +17,7 @@ const ContentRewrite = () => {
   const [wordCount, setWordCount] = useState(0);
   const [saveHistory, setSaveHistory] = useState([]);
   const [showAllHistory, setShowAllHistory] = useState(false);
-  const [displayMode, setDisplayMode] = useState("text"); // Added display mode state
+  const [displayMode, setDisplayMode] = useState("text");
 
   const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 
@@ -120,7 +120,6 @@ const ContentRewrite = () => {
         throw new Error("Invalid response from API");
       }
 
-      // Sanitize and convert to markdown
       const sanitizedText = DOMPurify.sanitize(rewrittenText);
       const markdownText = marked(sanitizedText);
 
@@ -145,12 +144,12 @@ const ContentRewrite = () => {
 
   const showNotification = (message, type = "info") => {
     const notification = document.createElement("div");
-    notification.className = `notification notification-${type}`;
+    notification.className = `core-notification core-notification-${type}`;
     notification.textContent = message;
     document.body.appendChild(notification);
 
     setTimeout(() => {
-      notification.classList.add("fade-out");
+      notification.classList.add("core-fade-out");
       setTimeout(() => document.body.removeChild(notification), 500);
     }, 3000);
   };
@@ -173,34 +172,34 @@ const ContentRewrite = () => {
       : saveHistory.slice(-3);
 
     return (
-      <div className="history-section">
-        <div className="history-header">
+      <div className="core-history-section">
+        <div className="core-history-header">
           <h3>Recent Rewrites</h3>
-          <div className="history-controls">
+          <div className="core-history-controls">
             <button
-              className="history-control-btn"
+              className="core-history-control-btn"
               onClick={() => setShowAllHistory(!showAllHistory)}
             >
               {showAllHistory ? "Show Less" : "Show More"}
             </button>
             <button
-              className="history-control-btn clear-btn"
+              className="core-history-control-btn core-clear-btn"
               onClick={handleClearHistory}
             >
               Clear History
             </button>
           </div>
         </div>
-        <div className="history-list">
+        <div className="core-history-list">
           {displayedHistory.map((item, index) => (
-            <div key={index} className="history-item">
-              <div className="history-timestamp">{item.timestamp}</div>
-              <div className="history-text">
-                <div className="history-original">
+            <div key={index} className="core-history-item">
+              <div className="core-history-timestamp">{item.timestamp}</div>
+              <div className="core-history-text">
+                <div className="core-history-original">
                   {item.original.substring(0, 100)}...
                 </div>
-                <div className="history-arrow">→</div>
-                <div className="history-rewritten">
+                <div className="core-history-arrow">→</div>
+                <div className="core-history-rewritten">
                   {item.rewritten.substring(0, 100)}...
                 </div>
               </div>
@@ -212,31 +211,31 @@ const ContentRewrite = () => {
   };
 
   return (
-    <div className="rewrite-container">
-      <div className="rewrite-header">
-        <h1 className="rewrite-title">
-          <span className="rewrite-title-gradient">Advanced AI</span> Content
-          Rewriter
+    <div className="core-rewrite-container">
+      <div className="core-rewrite-header">
+        <h1 className="core-rewrite-title">
+          <span className="core-rewrite-title-gradient">Advanced AI</span>{" "}
+          Content Rewriter
         </h1>
-        <p className="rewrite-subtitle">
+        <p className="core-rewrite-subtitle">
           Transform your content with advanced AI-powered writing assistance
         </p>
       </div>
 
-      <div className="rewrite-main">
-        <div className="input-section">
-          <div className="content-input">
+      <div className="core-rewrite-main">
+        <div className="core-input-section">
+          <div className="core-content-input">
             <textarea
-              className="rewrite-input"
+              className="core-rewrite-input"
               placeholder="Enter your content here..."
               value={inputContent}
               onChange={(e) => setInputContent(e.target.value)}
             ></textarea>
-            <div className="word-counter">Words: {wordCount}</div>
+            <div className="core-word-counter">Words: {wordCount}</div>
           </div>
 
-          <div className="controls-grid">
-            <div className="control-group">
+          <div className="core-controls-grid">
+            <div className="core-control-group">
               <label>Tone:</label>
               <select value={tone} onChange={(e) => setTone(e.target.value)}>
                 {tones.map((t) => (
@@ -247,7 +246,7 @@ const ContentRewrite = () => {
               </select>
             </div>
 
-            <div className="control-group">
+            <div className="core-control-group">
               <label>Language:</label>
               <select
                 value={language}
@@ -261,7 +260,7 @@ const ContentRewrite = () => {
               </select>
             </div>
 
-            <div className="control-group">
+            <div className="core-control-group">
               <label>Complexity:</label>
               <select
                 value={complexity}
@@ -275,7 +274,7 @@ const ContentRewrite = () => {
               </select>
             </div>
 
-            <div className="control-group">
+            <div className="core-control-group">
               <label>Word Limit:</label>
               <input
                 type="number"
@@ -285,7 +284,7 @@ const ContentRewrite = () => {
               />
             </div>
 
-            <div className="control-group">
+            <div className="core-control-group">
               <label>Keywords:</label>
               <input
                 type="text"
@@ -296,7 +295,7 @@ const ContentRewrite = () => {
             </div>
 
             {rewrittenContent && (
-              <div className="control-group">
+              <div className="core-control-group">
                 <label>Display Mode:</label>
                 <select
                   value={displayMode}
@@ -310,7 +309,7 @@ const ContentRewrite = () => {
           </div>
 
           <button
-            className={`rewrite-button ${loading ? "loading" : ""}`}
+            className={`core-rewrite-button ${loading ? "core-loading" : ""}`}
             onClick={handleRewrite}
             disabled={loading}
           >
@@ -319,27 +318,27 @@ const ContentRewrite = () => {
         </div>
 
         {rewrittenContent && (
-          <div className="output-section">
-            <div className="result-header">
+          <div className="core-output-section">
+            <div className="core-result-header">
               <h2>Enhanced Content</h2>
-              <button className="copy-button" onClick={handleCopy}>
+              <button className="core-copy-button" onClick={handleCopy}>
                 Copy to Clipboard
               </button>
             </div>
             {displayMode === "text" ? (
               <textarea
-                className="rewrite-output"
+                className="core-rewrite-output"
                 readOnly
                 value={rewrittenContent}
               ></textarea>
             ) : (
               <div
-                className="rewrite-output markdown-content"
+                className="core-rewrite-output core-markdown-content"
                 dangerouslySetInnerHTML={{ __html: rewrittenMarkdown }}
               />
             )}
 
-            <div className="ai-suggestions">
+            <div className="core-ai-suggestions">
               <h3>AI Writing Suggestions</h3>
               <ul>
                 {aiSuggestions.map((suggestion, index) => (

@@ -1,18 +1,36 @@
 /* Translation.css */
+:root {
+  --primary-gradient-start: #6366f1;
+  --primary-gradient-end: #3b82f6;
+  --text-dark: #2d3748;
+  --text-muted: #6b7280;
+  --border-light: #e2e8f0;
+  --background-light: #f8fafc;
+  --white: #ffffff;
+  --error-gradient-start: #ff6b6b;
+  --error-gradient-end: #ff4757;
+}
+
 .translation-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 2rem auto;
   padding: 2rem;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #2d3748;
-  background: #ffffff;
+  color: var(--text-dark);
+  background: var(--white);
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.translation-container:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .translation-header {
   text-align: center;
   margin-bottom: 2.5rem;
+  position: relative;
 }
 
 .logo-container {
@@ -26,21 +44,29 @@
 .ai-orb {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  background: linear-gradient(
+    135deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
   border-radius: 50%;
   position: relative;
   animation: pulse 2s infinite;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    transform: scale(1);
   }
-  70% {
+  50% {
     box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+    transform: scale(1.05);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+    transform: scale(1);
   }
 }
 
@@ -49,10 +75,15 @@
   color: #4f46e5;
   margin: 0;
   font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
 .translation-title .highlight {
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  background: linear-gradient(
+    135deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-left: 0.5rem;
@@ -60,15 +91,17 @@
 
 .translation-subtitle {
   font-size: 1.1rem;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-top: 0.5rem;
+  font-weight: 400;
 }
 
 .translation-main {
-  background: #f8fafc;
+  background: var(--background-light);
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
 .input-container {
@@ -81,17 +114,19 @@
   width: 97%;
   min-height: 120px;
   padding: 1rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-light);
   border-radius: 0.75rem;
   font-size: 1rem;
   line-height: 1.5;
   transition: all 0.3s ease;
   resize: vertical;
+  background-color: var(--white);
 }
 
-.input-text:focus {
+.input-text:focus,
+.output-text:focus {
   outline: none;
-  border-color: #6366f1;
+  border-color: var(--primary-gradient-start);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
@@ -100,7 +135,8 @@
   bottom: 0.5rem;
   right: 1rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-muted);
+  opacity: 0.7;
 }
 
 .language-controls {
@@ -108,6 +144,7 @@
   gap: 1rem;
   align-items: flex-start;
   margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .language-select {
@@ -119,6 +156,7 @@
 
 .language-group {
   flex: 1;
+  position: relative;
 }
 
 .language-group label {
@@ -126,22 +164,32 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #4b5563;
+  transition: color 0.3s ease;
+}
+
+.language-group:hover label {
+  color: var(--primary-gradient-start);
 }
 
 .language-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-light);
   border-radius: 0.5rem;
   font-size: 1rem;
-  background-color: white;
+  background-color: var(--white);
   cursor: pointer;
   transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.5rem;
 }
 
 .language-group select:focus {
   outline: none;
-  border-color: #6366f1;
+  border-color: var(--primary-gradient-start);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
@@ -151,20 +199,39 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: white;
-  border: 2px solid #e2e8f0;
+  background: var(--white);
+  border: 2px solid var(--border-light);
   border-radius: 50%;
   cursor: pointer;
   font-size: 1.25rem;
   color: #4b5563;
   transition: all 0.3s ease;
   margin-top: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.swap-languages::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(99, 102, 241, 0.1);
+  transform: scale(0);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.swap-languages:hover::before {
+  transform: scale(1);
 }
 
 .swap-languages:hover {
   background: #f3f4f6;
-  border-color: #6366f1;
-  color: #6366f1;
+  border-color: var(--primary-gradient-start);
+  color: var(--primary-gradient-start);
 }
 
 .translate-button {
@@ -172,8 +239,12 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
-  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
+  color: var(--white);
   border: none;
   border-radius: 0.5rem;
   font-weight: 600;
@@ -182,6 +253,28 @@
   min-width: 120px;
   justify-content: center;
   margin-top: 33px;
+  position: relative;
+  overflow: hidden;
+}
+
+.translate-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: all 0.6s;
+}
+
+.translate-button:hover::before {
+  left: 100%;
 }
 
 .translate-button:hover {
@@ -194,6 +287,8 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* Rest of the previous CSS remains the same */
 
 .loading-spinner {
   width: 16px;
@@ -382,37 +477,6 @@
   font-weight: 600;
   margin-right: 0.5rem;
 }
-
-/* .notification {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    padding: 1rem 1.5rem;
-    border-radius: 0.5rem;
-    background: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    animation: slideIn 0.3s ease;
-    z-index: 1000;
-  }
-  
-  .notification.success {
-    background: #10b981;
-    color: white;
-  }
-  
-  .notification.error {
-    background: #ef4444;
-    color: white;
-  }
-  
-  .notification.info {
-    background: #3b82f6;
-    color: white;
-  }
-  
-  .notification.fade-out {
-    animation: slideOut 0.5s ease forwards;
-  } */
 
 @keyframes slideIn {
   from {

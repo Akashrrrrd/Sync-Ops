@@ -7,8 +7,8 @@ const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 
 // Configure marked options
 marked.setOptions({
-  breaks: true, // Enable line breaks
-  gfm: true, // Enable GitHub Flavored Markdown
+  breaks: true,
+  gfm: true,
 });
 
 const ContentGeneration = () => {
@@ -257,19 +257,19 @@ const ContentGeneration = () => {
   };
 
   return (
-    <div className="content-generator">
-      <div className="content-generator__header">
-        <h1 className="content-generator__title">AI Content Studio</h1>
-        <p className="content-generator__subtitle">
+    <div className="coge-content-generator">
+      <div className="coge-content-generator__header">
+        <h1 className="coge-content-generator__title">AI Content Studio</h1>
+        <p className="coge-content-generator__subtitle">
           Transform your ideas into powerful content with advanced AI assistance
         </p>
       </div>
 
-      <div className="content-generator__controls">
-        <div className="content-generator__control-group">
-          <label className="content-generator__label">Tone</label>
+      <div className="coge-content-generator__controls">
+        <div className="coge-content-generator__control-group">
+          <label className="coge-content-generator__label">Tone</label>
           <select
-            className="content-generator__select"
+            className="coge-content-generator__select"
             value={selectedTone}
             onChange={(e) => setSelectedTone(e.target.value)}
           >
@@ -281,10 +281,10 @@ const ContentGeneration = () => {
           </select>
         </div>
 
-        <div className="content-generator__control-group">
-          <label className="content-generator__label">Length</label>
+        <div className="coge-content-generator__control-group">
+          <label className="coge-content-generator__label">Length</label>
           <select
-            className="content-generator__select"
+            className="coge-content-generator__select"
             value={selectedLength}
             onChange={(e) => setSelectedLength(e.target.value)}
           >
@@ -296,32 +296,20 @@ const ContentGeneration = () => {
           </select>
         </div>
 
-        <div className="content-generator__control-group">
-          {/* <label className="content-generator__label">Format</label> */}
-          <div className="content-generator__toggle">
-            {/* <button
-              className={`content-generator__toggle-button ${markdownMode ? 'content-generator__toggle-button--active' : ''}`}
-              onClick={() => setMarkdownMode(true)}
-            >
-              Markdown
-            </button>
-            <button
-              className={`content-generator__toggle-button ${!markdownMode ? 'content-generator__toggle-button--active' : ''}`}
-              onClick={() => setMarkdownMode(false)}
-            >
-              Plain Text
-            </button> */}
-          </div>
+        <div className="coge-content-generator__control-group">
+          <div className="coge-content-generator__toggle"></div>
         </div>
       </div>
 
-      <div className="content-generator__templates">
-        <h3 className="content-generator__templates-title">Quick Templates</h3>
-        <div className="content-generator__templates-grid">
+      <div className="coge-content-generator__templates">
+        <h3 className="coge-content-generator__templates-title">
+          Quick Templates
+        </h3>
+        <div className="coge-content-generator__templates-grid">
           {promptTemplates.map((template, index) => (
             <button
               key={index}
-              className="content-generator__template-button"
+              className="coge-content-generator__template-button"
               onClick={() => handleTemplateSelect(template)}
             >
               {template}
@@ -330,10 +318,10 @@ const ContentGeneration = () => {
         </div>
       </div>
 
-      <div className="content-generator__input-section">
-        <div className="content-generator__input-header">
-          <label className="content-generator__label">Your Prompt</label>
-          <div className="content-generator__counts">
+      <div className="coge-content-generator__input-section">
+        <div className="coge-content-generator__input-header">
+          <label className="coge-content-generator__label">Your Prompt</label>
+          <div className="coge-content-generator__counts">
             <span>{wordCount} words</span>
             <span>{charCount} characters</span>
           </div>
@@ -341,7 +329,7 @@ const ContentGeneration = () => {
 
         <textarea
           ref={textareaRef}
-          className="content-generator__textarea"
+          className="coge-content-generator__textarea"
           placeholder="Enter your prompt here... Be specific about your requirements."
           value={inputPrompt}
           onChange={handleInputChange}
@@ -349,16 +337,16 @@ const ContentGeneration = () => {
         />
 
         <button
-          className={`content-generator__button ${
-            loading ? "content-generator__button--loading" : ""
+          className={`coge-content-generator__button ${
+            loading ? "coge-content-generator__button--loading" : ""
           }`}
           onClick={handleGenerateContent}
           disabled={loading}
         >
           {loading ? (
-            <span className="content-generator__loading-text">
+            <span className="coge-content-generator__loading-text">
               Generating Content...
-              <span className="content-generator__loading-dots"></span>
+              <span className="coge-content-generator__loading-dots"></span>
             </span>
           ) : (
             "Generate Content"
@@ -366,85 +354,92 @@ const ContentGeneration = () => {
         </button>
 
         {error && (
-          <div className="content-generator__error" role="alert">
+          <div className="coge-content-generator__error" role="alert">
             {error}
           </div>
         )}
       </div>
 
       {generatedContent && (
-        <div className="content-generator__output">
-          <div className="content-generator__output-header">
-            <h2 className="content-generator__output-title">
+        <div className="coge-content-generator__output">
+          <div className="coge-content-generator__output-header">
+            <h2 className="coge-content-generator__output-title">
               Generated Content
             </h2>
-            <div className="content-generator__output-actions">
+            <div className="coge-content-generator__output-actions">
               <button
-                className={`content-generator__action-button ${
-                  copySuccess ? "content-generator__action-button--success" : ""
+                className={`coge-content-generator__action-button ${
+                  copySuccess
+                    ? "coge-content-generator__action-button--success"
+                    : ""
                 }`}
                 onClick={handleCopy}
               >
                 {copySuccess ? "Copied!" : "Copy"}
               </button>
               <button
-                className="content-generator__action-button"
+                className="coge-content-generator__action-button"
                 onClick={handleSave}
               >
                 Save as File
               </button>
             </div>
           </div>
-          <div className="content-generator__output-content">
+          <div className="coge-content-generator__output-content">
             {renderContent(generatedContent)}
           </div>
           {saveStatus && (
-            <div className="content-generator__save-status">{saveStatus}</div>
+            <div className="coge-content-generator__save-status">
+              {saveStatus}
+            </div>
           )}
         </div>
       )}
 
       {contentHistory.length > 0 && (
         <div
-          className={`content-generator__history ${
-            isExpanded ? "content-generator__history--expanded" : ""
+          className={`coge-content-generator__history ${
+            isExpanded ? "coge-content-generator__history--expanded" : ""
           }`}
         >
-          <div className="content-generator__history-header">
-            <h3 className="content-generator__history-title">
+          <div className="coge-content-generator__history-header">
+            <h3 className="coge-content-generator__history-title">
               Generation History
             </h3>
-            <div className="content-generator__history-actions">
+            <div className="coge-content-generator__history-actions">
               <button
-                className="content-generator__history-toggle"
+                className="coge-content-generator__history-toggle"
                 onClick={() => setIsExpanded(!isExpanded)}
               >
                 {isExpanded ? "Show Less" : "Show More"}
               </button>
               <button
-                className="content-generator__history-clear"
+                className="coge-content-generator__history-clear"
                 onClick={clearHistory}
               >
                 Clear History
               </button>
             </div>
           </div>
-          <div className="content-generator__history-list">
+          <div className="coge-content-generator__history-list">
             {contentHistory.map((item) => (
-              <div key={item.id} className="content-generator__history-item">
-                <div className="content-generator__history-item-header">
-                  <span className="content-generator__history-item-prompt">
+              <div
+                key={item.id}
+                className="coge-content-generator__history-item"
+              >
+                <div className="coge-content-generator__history-item-header">
+                  <span className="coge-content-generator__history-item-prompt">
                     {item.prompt.substring(0, 50)}...
                   </span>
-                  <span className="content-generator__history-item-date">
+                  <span className="coge-content-generator__history-item-date">
                     {new Date(item.timestamp).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="content-generator__history-item-tags">
-                  <span className="content-generator__history-item-tag">
+                <div className="coge-content-generator__history-item-tags">
+                  <span className="coge-content-generator__history-item-tag">
                     {item.tone}
                   </span>
-                  <span className="content-generator__history-item-tag">
+                  <span className="coge-content-generator__history-item-tag">
                     {item.length}
                   </span>
                 </div>

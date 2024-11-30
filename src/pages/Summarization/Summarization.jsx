@@ -165,7 +165,7 @@ const Summarization = () => {
   };
 
   return (
-    <div className="summarization-container">
+    <div className="sum-summarization-container">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -179,23 +179,23 @@ const Summarization = () => {
         theme="light"
       />
 
-      <div className="summarization-header">
+      <div className="sum-summarization-header">
         <h1>✨ AI Text Summarization</h1>
-        <p className="subtitle">
+        <p className="sum-subtitle">
           Transform long text into concise summaries instantly
         </p>
       </div>
 
-      <div className="input-section">
-        <div className="textarea-wrapper">
+      <div className="sum-input-section">
+        <div className="sum-textarea-wrapper">
           <textarea
             placeholder="Enter your text here (minimum 50 characters)..."
             value={inputText}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            className="summarization-textarea"
+            className="sum-summarization-textarea"
           />
-          <div className="char-count">
+          <div className="sum-char-count">
             {charCount} characters{" "}
             {charCount < 50 && charCount > 0 && "(minimum 50)"}
           </div>
@@ -204,41 +204,41 @@ const Summarization = () => {
         <button
           onClick={handleSummarize}
           disabled={loading || charCount < 50}
-          className={`summarization-button ${loading ? "loading" : ""}`}
+          className={`sum-summarization-button ${loading ? "loading" : ""}`}
         >
           {loading ? (
-            <span className="loading-text">
-              <span className="dot">.</span>
-              <span className="dot">.</span>
-              <span className="dot">.</span>
+            <span className="sum-loading-text">
+              <span className="sum-dot">.</span>
+              <span className="sum-dot">.</span>
+              <span className="sum-dot">.</span>
             </span>
           ) : (
             "Summarize"
           )}
         </button>
 
-        {error && <div className="error-message">❌ {error}</div>}
+        {error && <div className="sum-error-message">❌ {error}</div>}
       </div>
 
       {summary && (
-        <div className="summary-output">
-          <div className="summary-header">
+        <div className="sum-summary-output">
+          <div className="sum-summary-header">
             <h2>Summary</h2>
             <button
               onClick={() => handleCopy(summary)}
-              className="copy-button"
+              className="sum-copy-button"
               title="Copy to clipboard"
             >
               {copySuccess ? "✅ Copied!" : "📋 Copy"}
             </button>
           </div>
-          <div className="summary-content">
+          <div className="sum-summary-content">
             <p>{summary}</p>
           </div>
         </div>
       )}
 
-      <div className="keyboard-shortcut">
+      <div className="sum-keyboard-shortcut">
         Pro tip: Press Ctrl + Enter to summarize quickly
       </div>
     </div>

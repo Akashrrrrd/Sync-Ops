@@ -17,43 +17,67 @@
 }
 
 .data-data-insights {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 40px auto;
-  padding: 2.5rem;
-  background-color: var(--bg-primary);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-light);
-  transition: var(--transition);
+  padding: 3rem 2.5rem; /* Adjusted for a balanced layout */
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 30%,
+    var(--bg-secondary) 100%
+  );
+  border-radius: 12px; /* Slightly increased for a modern feel */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle frosted border */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Soft elevated shadow */
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  backdrop-filter: blur(6px); /* Frosted glass effect */
 }
 
 .data-data-insights:hover {
-  box-shadow: var(--shadow-hover);
+  transform: translateY(10px) scale(1); /* Slightly elevated hover effect */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); /* Enhanced hover shadow */
 }
 
 .data-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
+  animation: slideIn 0.8s ease-out; /* Smooth entrance */
 }
 
 .data-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 3rem; /* Larger for prominence */
+  font-weight: 900;
   color: var(--accent-color);
   margin-bottom: 1rem;
-  letter-spacing: -0.5px;
-  transition: var(--transition);
+  letter-spacing: -1px;
+  text-transform: uppercase; /* Adds a bold, modern touch */
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2); /* Glow-like effect */
+  transition: color 0.4s ease, letter-spacing 0.4s ease, transform 0.4s ease;
+}
+
+.data-header h1:hover {
+  color: var(--accent-color-hover); /* Dynamic hover effect */
+  letter-spacing: -1.5px; /* Slight dynamic shift */
+  transform: translateY(-8px); /* Enhanced lift effect */
 }
 
 .data-header p {
   font-size: 1.125rem;
-  color: var(--text-secondary);
-  max-width: 600px;
+  color: rgba(135, 130, 130, 0.599); /* Slightly muted text for contrast */
+  max-width: 700px; /* Increased for flexibility */
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.8; /* Comfortable readability */
+  font-family: "Poppins", sans-serif; /* Sleek and professional font */
 }
 
-.data-header h1:hover {
-  color: var(--accent-color);
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .data-upload-area {

@@ -11,7 +11,7 @@
   --border-radius: 12px;
 }
 
-.summarization-container {
+.sum-summarization-container {
   max-width: 1400px;
   margin: 50px auto;
   padding: 40px;
@@ -26,18 +26,18 @@
   transition: all var(--transition-speed) ease;
 }
 
-.summarization-container:hover {
+.sum-summarization-container:hover {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
-.summarization-header {
+.sum-summarization-header {
   text-align: center;
   margin-bottom: 50px;
   position: relative;
   padding-bottom: 20px;
 }
 
-.summarization-header::after {
+.sum-summarization-header::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -53,7 +53,7 @@
   );
 }
 
-.summarization-header h1 {
+.sum-summarization-header h1 {
   font-size: 2.8em;
   color: var(--text-dark);
   margin-bottom: 15px;
@@ -69,11 +69,11 @@
   transition: all var(--transition-speed) ease;
 }
 
-.summarization-header h1:hover {
+.sum-summarization-header h1:hover {
   transform: scale(1.02);
 }
 
-.subtitle {
+.sum-subtitle {
   color: var(--text-light);
   font-size: 1.2em;
   font-weight: 400;
@@ -82,19 +82,20 @@
   line-height: 1.6;
 }
 
-.input-section {
+.sum-input-section {
   margin-bottom: 40px;
   position: relative;
 }
 
-.textarea-wrapper {
+.sum-textarea-wrapper {
   position: relative;
   margin-bottom: 25px;
 }
 
-.summarization-textarea {
-  width: 100%;
+.sum-summarization-textarea {
+  width: 96%;
   min-height: 250px;
+
   padding: 25px;
   font-size: 17px;
   line-height: 1.7;
@@ -109,16 +110,16 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
-.summarization-textarea:focus {
+.sum-summarization-textarea:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(58, 110, 165, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
-.char-count {
+.sum-char-count {
   position: absolute;
-  bottom: -20px;
-  right: 10px;
+  bottom: 16px;
+  right: 16px;
   color: var(--text-light);
   font-size: 0.9em;
   background: rgba(255, 255, 255, 0.8);
@@ -127,7 +128,7 @@
   border: 1px solid var(--border-color);
 }
 
-.summarization-button {
+.sum-summarization-button {
   width: 100%;
   padding: 18px 40px;
   font-size: 1.2em;
@@ -149,7 +150,7 @@
   box-shadow: 0 10px 25px rgba(58, 110, 165, 0.2);
 }
 
-.summarization-button::before {
+.sum-summarization-button::before {
   content: "";
   position: absolute;
   top: 0;
@@ -165,54 +166,54 @@
   transition: all var(--transition-speed) ease;
 }
 
-.summarization-button:hover::before {
+.sum-summarization-button:hover::before {
   left: 100%;
 }
 
-.summarization-button:hover:not(:disabled) {
+.sum-summarization-button:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: 0 15px 30px rgba(58, 110, 165, 0.25),
     0 5px 15px rgba(58, 110, 165, 0.15);
 }
 
-.summarization-button:disabled {
+.sum-summarization-button:disabled {
   background: linear-gradient(135deg, #d1d5db, #9ca3af);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.loading-container {
+.sum-loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.loading-text {
+.sum-loading-text {
   display: inline-block;
   margin-right: 10px;
 }
 
-.dot {
+.sum-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
   margin: 0 4px;
   border-radius: 50%;
   background-color: var(--primary-color);
-  animation: dotAnimation 1.4s infinite;
+  animation: sum-dotAnimation 1.4s infinite;
   opacity: 0;
 }
 
-.dot:nth-child(2) {
+.sum-dot:nth-child(2) {
   animation-delay: 0.5s;
 }
 
-.dot:nth-child(3) {
+.sum-dot:nth-child(3) {
   animation-delay: 1s;
 }
 
-@keyframes dotAnimation {
+@keyframes sum-dotAnimation {
   0%,
   100% {
     opacity: 0;
@@ -224,7 +225,7 @@
   }
 }
 
-.error-message {
+.sum-error-message {
   color: #dc3545;
   background: rgba(220, 53, 69, 0.05);
   border: 1px solid rgba(220, 53, 69, 0.2);
@@ -232,23 +233,23 @@
   border-radius: var(--border-radius);
   margin-top: 20px;
   text-align: center;
-  animation: fadeIn var(--transition-speed) ease;
+  animation: sum-fadeIn var(--transition-speed) ease;
   font-weight: 500;
 }
 
-.summary-output {
+.sum-summary-output {
   background: var(--white);
   border-radius: var(--border-radius);
   padding: 30px;
   margin-top: 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 5px 15px rgba(0, 0, 0, 0.03);
   border: 1px solid var(--border-color);
-  animation: slideIn var(--transition-speed) ease;
+  animation: sum-slideIn var(--transition-speed) ease;
   position: relative;
   overflow: hidden;
 }
 
-.summary-output::before {
+.sum-summary-output::before {
   content: "";
   position: absolute;
   top: -50%;
@@ -266,7 +267,7 @@
   z-index: 1;
 }
 
-.summary-header {
+.sum-summary-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -275,14 +276,14 @@
   border-bottom: 2px solid var(--border-color);
 }
 
-.summary-header h2 {
+.sum-summary-header h2 {
   font-size: 1.8em;
   color: var(--text-dark);
   margin: 0;
   font-weight: 600;
 }
 
-.copy-button {
+.sum-copy-button {
   padding: 10px 20px;
   font-size: 1em;
   color: var(--primary-color);
@@ -296,20 +297,20 @@
   gap: 8px;
 }
 
-.copy-button:hover {
+.sum-copy-button:hover {
   background: var(--primary-color);
   color: var(--white);
   box-shadow: 0 5px 15px rgba(58, 110, 165, 0.2);
 }
 
-.summary-content {
+.sum-summary-content {
   color: var(--text-light);
   line-height: 1.8;
   font-size: 1.1em;
   letter-spacing: 0.3px;
 }
 
-.keyboard-shortcut {
+.sum-keyboard-shortcut {
   text-align: center;
   color: var(--text-light);
   font-size: 0.9em;
@@ -317,7 +318,7 @@
   opacity: 0.7;
 }
 
-@keyframes fadeIn {
+@keyframes sum-fadeIn {
   from {
     opacity: 0;
   }
@@ -326,7 +327,7 @@
   }
 }
 
-@keyframes slideIn {
+@keyframes sum-slideIn {
   from {
     opacity: 0;
     transform: translateY(30px);
@@ -339,56 +340,56 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .summarization-container {
+  .sum-summarization-container {
     margin: 30px 15px;
     padding: 25px;
   }
 
-  .summarization-header h1 {
+  .sum-summarization-header h1 {
     font-size: 2.3em;
   }
 
-  .subtitle {
+  .sum-subtitle {
     font-size: 1.1em;
   }
 
-  .summarization-textarea {
+  .sum-summarization-textarea {
     min-height: 200px;
     padding: 20px;
     font-size: 16px;
   }
 
-  .summary-output {
+  .sum-summary-output {
     padding: 25px;
   }
 
-  .summary-header {
+  .sum-summary-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
 
-  .summary-header h2 {
+  .sum-summary-header h2 {
     margin-bottom: 10px;
   }
 }
 
 /* Print Optimization */
 @media print {
-  .summarization-container {
+  .sum-summarization-container {
     box-shadow: none;
     border: none;
     margin: 0;
     padding: 20px;
   }
 
-  .summarization-button,
-  .copy-button,
-  .keyboard-shortcut {
+  .sum-summarization-button,
+  .sum-copy-button,
+  .sum-keyboard-shortcut {
     display: none;
   }
 
-  .summary-output {
+  .sum-summary-output {
     box-shadow: none;
     border: 1px solid var(--border-color);
   }
