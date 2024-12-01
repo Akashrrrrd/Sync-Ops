@@ -1,16 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import logo from "./../../assets/logo.png";
 import google_icon from "./../../assets/google-icon.png";
 import github_icon from "./../../assets/github-icon.png";
 
-const Login = ({ onLogin, onSignup }) => {
+const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [adminBoard, setAdminBoard] = useState("members");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -20,17 +21,33 @@ const Login = ({ onLogin, onSignup }) => {
 
     if (isLogin) {
       if (email && password) {
-        onLogin(email, password, adminBoard);
+        // Simulate login authentication
+        onLogin("user");
+        navigate("/dashboard");
       } else {
         setError("Please enter both email and password.");
       }
     } else {
       if (firstName && lastName && email && password) {
-        onSignup(firstName, lastName, email, password, adminBoard);
+        // Simulate signup authentication
+        onLogin("user");
+        navigate("/dashboard");
       } else {
         setError("Please fill in all fields.");
       }
     }
+  };
+
+  const handleGuestLogin = () => {
+    // Guest mode with limited access
+    onLogin("guest");
+    navigate("/dashboard");
+  };
+
+  const handleSocialLogin = (platform) => {
+    // Simulate social login
+    onLogin("user");
+    navigate("/dashboard");
   };
 
   const toggleView = () => {
@@ -82,6 +99,7 @@ const Login = ({ onLogin, onSignup }) => {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Your First Name"
+                      required
                     />
                     <span className="login-input-icon">👤</span>
                   </div>
@@ -95,6 +113,7 @@ const Login = ({ onLogin, onSignup }) => {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Your Last Name"
+                      required
                     />
                     <span className="login-input-icon">👤</span>
                   </div>
@@ -148,15 +167,26 @@ const Login = ({ onLogin, onSignup }) => {
             </button>
           </form>
 
+          {/* Guest Login Button */}
+          <button onClick={handleGuestLogin} className="login-guest-button">
+            Continue as Guest
+          </button>
+
           {/* Social Login */}
           <div className="login-auth-separator">
             <span>OR</span>
           </div>
           <div className="login-auth-social-buttons">
-            <button className="login-auth-social-button login-auth-google">
+            <button
+              className="login-auth-social-button login-auth-google"
+              onClick={() => handleSocialLogin("google")}
+            >
               <img src={google_icon} alt="Google" className="social-icon" />
             </button>
-            <button className="login-auth-social-button login-auth-github">
+            <button
+              className="login-auth-social-button login-auth-github"
+              onClick={() => handleSocialLogin("github")}
+            >
               <img src={github_icon} alt="GitHub" className="social-icon" />
             </button>
           </div>

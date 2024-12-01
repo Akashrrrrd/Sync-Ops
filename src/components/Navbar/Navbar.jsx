@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { marked } from "marked"; // Add marked import
-import DOMPurify from "dompurify"; // Add DOMPurify import
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 import "./Navbar.css";
 import "./AIModal.css";
 import logo from "./../../assets/logo.png";
@@ -12,19 +12,16 @@ const STORAGE_KEY = "ai_chat_history";
 
 // Configure marked options
 marked.setOptions({
-  breaks: true, // Enable line breaks
-  gfm: true, // Enable GitHub Flavored Markdown
-  headerIds: false, // Disable header IDs to prevent XSS
-  mangle: false, // Disable mangling to prevent XSS
+  breaks: true,
+  gfm: true,
+  headerIds: false,
+  mangle: false,
 });
 
-// Chat Message Component
+// ChatMessage Component remains the same
 const ChatMessage = ({ message }) => {
-  // Function to safely render markdown content
   const renderMarkdown = (content) => {
-    // First convert markdown to HTML
     const rawHtml = marked(content);
-    // Then sanitize the HTML
     const sanitizedHtml = DOMPurify.sanitize(rawHtml, {
       ALLOWED_TAGS: [
         "p",
@@ -62,7 +59,7 @@ const ChatMessage = ({ message }) => {
   );
 };
 
-// Loading Indicator Component
+// LoadingIndicator Component remains the same
 const LoadingIndicator = () => (
   <div className="chat-message ai-message">
     <div className="message-content">
@@ -75,7 +72,7 @@ const LoadingIndicator = () => (
   </div>
 );
 
-// Search Component
+// SearchBar Component remains the same
 const SearchBar = () => (
   <div className="search-container">
     <input
@@ -102,7 +99,7 @@ const SearchBar = () => (
   </div>
 );
 
-// AI Modal Component
+// AIModal Component remains the same (no changes needed)
 const AIModal = ({
   isOpen,
   onClose,
@@ -195,67 +192,81 @@ const AIModal = ({
   );
 };
 
-// Profile Menu Component
+// Updated ProfileMenu Component
 const ProfileMenu = ({
+  userType,
   isLoggedIn,
   isProfileMenuOpen,
   toggleProfileMenu,
   handleSignOut,
-}) => (
-  <div className="profile-menu">
-    {isLoggedIn ? (
-      <>
-        <button className="profile-button" onClick={toggleProfileMenu}>
-          <span className="profile-name">Profile</span>
-          <svg
-            className="chevron-icon"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
+}) => {
+  // If user is a guest, return the login button in the same container
+  if (userType === "guest") {
+    return (
+      <div className="profile-menu">
+        <Link to="/login">
+          <button className="login-button">Login</button>
+        </Link>
+      </div>
+    );
+  }
 
-        {isProfileMenuOpen && (
-          <div className="profile-dropdown">
-            <Link to="/profile" className="dropdown-item">
-              Profile
-            </Link>
-            <Link to="/settings" className="dropdown-item">
-              Settings
-            </Link>
-            <Link to="/help" className="dropdown-item">
-              Help & Support
-            </Link>
-            <div className="dropdown-divider"></div>
-            <Link className="dropdown-item" onClick={handleSignOut}>
-              Sign Out
-            </Link>
-          </div>
-        )}
-      </>
-    ) : (
-      <Link to="/login">
-        <button className="login-button">Login</button>
-      </Link>
-    )}
-  </div>
-);
+  // Existing logic for logged-in and non-guest users remains the same
+  return (
+    <div className="profile-menu">
+      {isLoggedIn ? (
+        <>
+          <button className="profile-button" onClick={toggleProfileMenu}>
+            <span className="profile-name">Profile</span>
+            <svg
+              className="chevron-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {isProfileMenuOpen && (
+            <div className="profile-dropdown">
+              <Link to="/profile" className="dropdown-item">
+                Profile
+              </Link>
+              <Link to="/settings" className="dropdown-item">
+                Settings
+              </Link>
+              <Link to="/help" className="dropdown-item">
+                Help & Support
+              </Link>
+              <div className="dropdown-divider"></div>
+              <Link className="dropdown-item" onClick={handleSignOut}>
+                Sign Out
+              </Link>
+            </div>
+          )}
+        </>
+      ) : (
+        <Link to="/login">
+          <button className="login-button">Login</button>
+        </Link>
+      )}
+    </div>
+  );
+};
 
 // Main Navbar Component
-const Navbar = ({ isLoggedIn, handleLogout }) => {
+const Navbar = ({ isLoggedIn, handleLogout, userType }) => {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAIAssistantOpen, setAIAssistantOpen] = useState(false);
   const [aiQuery, setAIQuery] = useState("");
   const [chatMessages, setChatMessages] = useState(() => {
-    // Load chat history from localStorage on initial render
     const savedHistory = localStorage.getItem(STORAGE_KEY);
     return savedHistory ? JSON.parse(savedHistory) : [];
   });
