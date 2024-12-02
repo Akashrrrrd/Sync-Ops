@@ -1,199 +1,297 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Prompts.css";
 
+const RECOMMENDED_PROMPTS = [
+  {
+    id: 1,
+    topic: "Creative Writing",
+    description:
+      "Generate a unique story premise that blends sci-fi and historical fiction",
+  },
+  {
+    id: 2,
+    topic: "Business Strategy",
+    description:
+      "Develop an innovative business model for sustainable technology",
+  },
+  {
+    id: 3,
+    topic: "Product Design",
+    description:
+      "Create a revolutionary product that solves an everyday problem",
+  },
+  {
+    id: 4,
+    topic: "Educational Innovation",
+    description:
+      "Design an immersive learning experience for complex scientific concepts",
+  },
+  {
+    id: 5,
+    topic: "Social Impact",
+    description:
+      "Craft a comprehensive strategy to address urban sustainability",
+  },
+  {
+    id: 6,
+    topic: "Health & Wellness",
+    description:
+      "Propose a cutting-edge solution to improve mental health care access",
+  },
+  {
+    id: 7,
+    topic: "Technology",
+    description:
+      "Outline the potential applications of AI in disaster management",
+  },
+  {
+    id: 8,
+    topic: "Entertainment",
+    description:
+      "Pitch an original concept for a TV series that targets Gen Z audiences",
+  },
+];
+
+const toastConfig = {
+  position: "bottom-right",
+  autoClose: 3000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+  transition: Slide,
+};
+
 const DynamicPrompts = () => {
-  // State Variables
   const [userInput, setUserInput] = useState("");
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [promptHistory, setPromptHistory] = useState([]);
-  const [error, setError] = useState(null);
+  const [activeModal, setActiveModal] = useState(null);
 
-  // API Configuration
   const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
   const genAI = new GoogleGenerativeAI(API_KEY);
 
-  // Handler to Generate Prompts
-  const generatePrompt = async () => {
+  const generatePrompt = useCallback(async () => {
     if (!userInput.trim()) {
-      showToast("Enter a topic to spark AI creativity", "error");
+      toast.info("Please enter a topic to spark AI creativity", toastConfig);
       return;
     }
 
     setLoading(true);
-    setError(null);
-
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       const promptTemplate = `
-    Professional Prompt Refinement:
-    - Subject Focus: "${userInput}"
-    - Develop a sophisticated, multi-dimensional prompt that encourages exploration of innovative ideas.
-    - Integrate diverse strategic perspectives to ensure depth and originality.
-    - Emphasize clarity, relevance, and actionable insights to drive meaningful outcomes.
-    - Ensure the prompt inspires creative and forward-thinking responses.
-  `;
+Professional Prompt Engineering Framework:
+- Domain: "${userInput}"
+- Objective: Craft a multidimensional, strategically nuanced prompt
+- Requirements:
+  1. Demonstrate intellectual depth
+  2. Encourage innovative thinking
+  3. Provide clear, actionable guidance
+  4. Stimulate comprehensive exploration
+`;
 
       const result = await model.generateContent(promptTemplate);
       const response = await result.response;
       const text = response.text();
 
-      // Sanitize and Markdown the generated text
-      const sanitizedText = DOMPurify.sanitize(text);
-      const markedText = marked(sanitizedText);
+      const sanitizedText = DOMPurify.sanitize(marked(text));
+      setGeneratedPrompt(sanitizedText);
 
-      // Update state
-      setGeneratedPrompt(markedText);
-      setPromptHistory((prev) => [
-        { id: Date.now(), topic: userInput, prompt: markedText },
-        ...prev.slice(0, 9),
-      ]);
+      const newPromptItem = {
+        id: Date.now(),
+        topic: userInput,
+        prompt: sanitizedText,
+        timestamp: new Date(),
+      };
 
-      showToast("Prompt Generated Successfully!", "success");
-    } catch (err) {
-      console.error("Prompt Generation Error:", err);
-      showToast("AI Creativity Unavailable. Try Again.", "error");
+      setPromptHistory((prev) => [newPromptItem, ...prev.slice(0, 9)]);
+      toast.success("Prompt Generated Successfully!", toastConfig);
+    } catch (error) {
+      console.error("Prompt Generation Error:", error);
+      toast.error("AI Creativity Temporarily Unavailable", {
+        ...toastConfig,
+        autoClose: 5000,
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, [userInput, genAI]);
 
-  // Utility Functions
-  const resetFields = () => {
+  const copyToClipboard = useCallback((text) => {
+    const plainText = text.replace(/<[^>]*>/g, "");
+    navigator.clipboard
+      .writeText(plainText)
+      .then(() => toast.success("Prompt Copied to Clipboard", toastConfig))
+      .catch(() => toast.error("Clipboard Copy Failed", toastConfig));
+  }, []);
+
+  const resetFields = useCallback(() => {
     setUserInput("");
     setGeneratedPrompt("");
-    setError(null);
-    showToast("Fields Reset", "info");
-  };
+    toast.info("Fields Reset", toastConfig);
+  }, []);
 
-  const clearHistory = () => {
+  const clearHistory = useCallback(() => {
     setPromptHistory([]);
-    showToast("Prompt History Cleared", "info");
-  };
+    toast.info("Prompt History Cleared", toastConfig);
+  }, []);
 
-  const copyToClipboard = (text) => {
-    const plainText = text.replace(/<[^>]*>/g, "");
-    navigator.clipboard.writeText(plainText);
-    showToast("Prompt Copied! 🚀", "success");
-  };
+  const openHistoryModal = useCallback((prompt) => {
+    setActiveModal(prompt);
+  }, []);
 
-  const showToast = (message, type) => {
-    const options = {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
+  const closeModal = useCallback(() => {
+    setActiveModal(null);
+  }, []);
+
+  const selectRecommendedPrompt = useCallback((prompt) => {
+    setUserInput(prompt.description);
+    toast.info(`Selected: ${prompt.topic}`, toastConfig);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Enter" && userInput.trim()) {
+        generatePrompt();
+      }
     };
-    switch (type) {
-      case "success":
-        toast.success(message, options);
-        break;
-      case "error":
-        toast.error(message, options);
-        break;
-      case "info":
-        toast.info(message, options);
-        break;
-      default:
-        toast(message, options);
-    }
-  };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") generatePrompt();
-  };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [userInput, generatePrompt]);
 
-  // Render
   return (
-    <div className="dypr-prompt-forge-container">
-      <ToastContainer />
-      <div className="dypr-neural-overlay"></div>
-      <div className="dypr-content-wrapper">
-        <h1 className="dypr-prompt-forge-title">
-          <span className="dypr-ai-gradient-text">Prompt Forge AI</span>
+    <div className="prompt-forge-container">
+      <div className="prompt-forge-header">
+        <h1>
+          Prompt <span className="gradient-text">Forge AI</span>
         </h1>
-        <p className="dypr-prompt-subtitle">
-          Unleash Boundless Creativity Through Intelligent Prompting
+        <p>
+          Elevate Your Creative Potential Through Intelligent Prompt Engineering
         </p>
+      </div>
 
-        <div className="dypr-input-zone">
-          <div className="dypr-input-wrapper">
-            <input
-              type="text"
-              placeholder="Spark an AI-Driven Exploration..."
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="dypr-neural-input"
-              disabled={loading}
-            />
-            <div className="dypr-input-icon">🧠</div>
-          </div>
+      <div className="prompt-input-section">
+        <div className="input-wrapper">
+          <input
+            type="text"
+            placeholder="Enter your creative domain..."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            disabled={loading}
+            className="prompt-input"
+          />
+          <button
+            onClick={generatePrompt}
+            disabled={loading}
+            className="generate-btn"
+          >
+            {loading ? "Generating..." : "Spark Ideas"}
+          </button>
+          <button onClick={resetFields} className="reset-btn">
+            Reset
+          </button>
+        </div>
+      </div>
 
-          <div className="dypr-action-cluster">
-            <button
-              onClick={generatePrompt}
-              className="dypr-forge-btn"
-              disabled={loading}
+      {/* Recommended Prompts Section */}
+      <div className="recommended-prompts-section">
+        <h3>Recommended Prompts</h3>
+        <div className="recommended-prompts-grid">
+          {RECOMMENDED_PROMPTS.map((prompt) => (
+            <div
+              key={prompt.id}
+              className="recommended-prompt-card"
+              onClick={() => selectRecommendedPrompt(prompt)}
             >
-              {loading ? "Forging Prompt..." : "Spark Creativity"}
+              <h4>{prompt.topic}</h4>
+              <p>{prompt.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {generatedPrompt && (
+        <div className="generated-prompt-section">
+          <div className="generated-prompt-header">
+            <h2>Generated Prompt</h2>
+            <button
+              onClick={() => copyToClipboard(generatedPrompt)}
+              className="copy-btn"
+            >
+              Copy Prompt
             </button>
-            <button onClick={resetFields} className="dypr-reset-btn">
-              🔄 Reset
+          </div>
+          <div
+            className="generated-prompt-content"
+            dangerouslySetInnerHTML={{ __html: generatedPrompt }}
+          />
+        </div>
+      )}
+
+      {promptHistory.length > 0 && (
+        <div className="prompt-history-section">
+          <div className="prompt-history-header">
+            <h3>Prompt History</h3>
+            <button onClick={clearHistory} className="clear-history-btn">
+              Clear History
             </button>
+          </div>
+          <div className="prompt-history-list">
+            {promptHistory.map((item) => (
+              <div key={item.id} className="history-item">
+                <span className="history-topic">{item.topic}</span>
+                <span className="history-timestamp">
+                  {item.timestamp.toLocaleString()}
+                </span>
+                <button
+                  onClick={() => openHistoryModal(item)}
+                  className="view-history-btn"
+                >
+                  View
+                </button>
+              </div>
+            ))}
           </div>
         </div>
+      )}
 
-        {generatedPrompt && (
-          <div className="dypr-prompt-emergence">
-            <div className="dypr-emergence-header">
-              <h2 className="dypr-emergence-title">
-                Generated Prompt Catalyst
-              </h2>
-              <button
-                onClick={() => copyToClipboard(generatedPrompt)}
-                className="dypr-copy-btn"
-              >
-                📋 Copy Prompt
+      {activeModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Historical Prompt Details</h2>
+              <button onClick={closeModal} className="modal-close-btn">
+                ×
               </button>
             </div>
             <div
-              className="dypr-prompt-display"
-              dangerouslySetInnerHTML={{ __html: generatedPrompt }}
+              className="modal-body"
+              dangerouslySetInnerHTML={{ __html: activeModal.prompt }}
             />
-          </div>
-        )}
-
-        {promptHistory.length > 0 && (
-          <div className="dypr-creative-memory">
-            <div className="dypr-memory-header">
-              <h3>Prompt Exploration Archive</h3>
-              <button onClick={clearHistory} className="dypr-clear-history-btn">
-                🗑️ Clear History
+            <div className="modal-footer">
+              <button
+                onClick={() => copyToClipboard(activeModal.prompt)}
+                className="modal-copy-btn"
+              >
+                Copy Prompt
+              </button>
+              <button onClick={closeModal} className="modal-close-action-btn">
+                Close
               </button>
             </div>
-            <div className="dypr-history-scroll">
-              {promptHistory.map((item) => (
-                <div key={item.id} className="dypr-memory-trace">
-                  <span className="dypr-trace-topic">{item.topic}</span>
-                  <div className="dypr-trace-actions">
-                    <button
-                      onClick={() => copyToClipboard(item.prompt)}
-                      className="dypr-trace-copy"
-                    >
-                      📋
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
