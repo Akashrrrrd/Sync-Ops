@@ -1,9 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import {
+  auth,
+  firestore,
+  googleProvider,
+  githubProvider,
+} from "./../../firebase";
+
 import logo from "./../../assets/logo.png";
 import google_icon from "./../../assets/google-icon.png";
 import github_icon from "./../../assets/github-icon.png";
+import "./Login.css";
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -12,47 +27,164 @@ const Login = ({ onLogin }) => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+  const handleUserData = async (user, additionalData = {}) => {
+    try {
+      const userRef = doc(firestore, "users", user.uid);
+      await setDoc(
+        userRef,
+        {
+          uid: user.uid,
+          email: user.email,
+          firstName: additionalData.firstName || "",
+          lastName: additionalData.lastName || "",
+          createdAt: new Date(),
+          ...additionalData,
+        },
+        { merge: true }
+      );
 
-    if (isLogin) {
-      if (email && password) {
-        // Simulate login authentication
-        onLogin("user");
-        navigate("/dashboard");
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        firstName: additionalData.firstName || "",
+        lastName: additionalData.lastName || "",
+        ...additionalData,
+      };
+
+      onLogin(userData);
+      toast.success("Login successful!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error saving user data:", error);
+      toast.error("Unable to save user data", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      let userCredential;
+      if (isLogin) {
+        userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        await handleUserData(userCredential.user);
       } else {
-        setError("Please enter both email and password.");
+        if (!firstName || !lastName) {
+          toast.error("Please provide first and last name", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          return;
+        }
+
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        await handleUserData(userCredential.user, {
+          firstName,
+          lastName,
+        });
       }
-    } else {
-      if (firstName && lastName && email && password) {
-        // Simulate signup authentication
-        onLogin("user");
-        navigate("/dashboard");
-      } else {
-        setError("Please fill in all fields.");
+    } catch (error) {
+      console.error("Authentication error:", error);
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          toast.error("Email is already registered", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          break;
+        case "auth/invalid-email":
+          toast.error("Invalid email address", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          break;
+        case "auth/weak-password":
+          toast.error("Password is too weak", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          break;
+        case "auth/wrong-password":
+          toast.error("Incorrect password", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          break;
+        default:
+          toast.error("Authentication failed", {
+            position: "top-right",
+            autoClose: 3000,
+          });
       }
     }
   };
 
-  const handleGuestLogin = () => {
-    // Guest mode with limited access
-    onLogin("guest");
-    navigate("/dashboard");
+  const handleGuestLogin = async () => {
+    try {
+      const guestEmail = `guest_${Date.now()}@syncops.com`;
+      const guestPassword = `Guest_${Math.random().toString(36).substring(2)}`;
+
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        guestEmail,
+        guestPassword
+      );
+      await handleUserData(userCredential.user, {
+        isGuest: true,
+        firstName: "Guest",
+        lastName: "User",
+      });
+    } catch (error) {
+      console.error("Guest login error:", error);
+      toast.error("Guest login failed", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
   };
 
-  const handleSocialLogin = (platform) => {
-    // Simulate social login
-    onLogin("user");
-    navigate("/dashboard");
+  const handleSocialLogin = async (providerType) => {
+    try {
+      const provider =
+        providerType === "google" ? googleProvider : githubProvider;
+      const userCredential = await signInWithPopup(auth, provider);
+
+      const nameParts = userCredential.user.displayName
+        ? userCredential.user.displayName.split(" ")
+        : ["", ""];
+
+      await handleUserData(userCredential.user, {
+        firstName: nameParts[0],
+        lastName: nameParts[1] || "",
+        photoURL: userCredential.user.photoURL,
+      });
+    } catch (error) {
+      console.error("Social login error:", error);
+      toast.error("Social login failed", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
   };
 
   const toggleView = () => {
     setIsLogin(!isLogin);
-    setError("");
   };
 
   const togglePasswordVisibility = () => {
@@ -61,6 +193,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-auth-container">
+      <ToastContainer />
       <div className="login-auth-content">
         {/* Logo Section */}
         <div className="login-auth-logo-container">
@@ -83,7 +216,6 @@ const Login = ({ onLogin }) => {
               ? "Log in to your SyncOps account to continue"
               : "Sign up to start collaborating on large-scale projects"}
           </p>
-          {error && <div className="login-auth-error">{error}</div>}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="login-auth-form">

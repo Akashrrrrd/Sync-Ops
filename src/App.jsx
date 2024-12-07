@@ -1,21 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  BrowserRouter,
+  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
-  useNavigate,
 } from "react-router-dom";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+
+// Import components
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
+import Login from "./components/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Projects from "./pages/Projects/Projects";
-import "./App.css";
-import "./components/i18n/i18n";
 import Tasks from "./pages/Tasks/Tasks";
 import Analytics from "./pages/Analytics/Analytics";
 import Resources from "./pages/Resources/Resources";
-import Login from "./components/Login/Login";
 import ChatRoom from "./pages/ChatRoom/ChatRoom";
 import Prompts from "./pages/Prompts/Prompts";
 import Summarization from "./pages/Summarization/Summarization";
@@ -33,33 +34,51 @@ import AIWorkflow from "./pages/AIWorkflow/AIWorkflow";
 import ContextualLearning from "./pages/ContextualLearning/ContextualLearning";
 import ContentAnonymizer from "./pages/ContentAnonymizer/ContentAnonymizer";
 import AIAccessibility from "./pages/AIAccessibility/AIAccessibility";
+import "./App.css";
+import "./components/i18n/i18n";
 
-const App = () => {
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setUserRole(currentUser ? "user" : null); // Default role
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarExpanded(!isSidebarExpanded);
   };
 
   const handleLogin = (role = "user") => {
-    setIsLoggedIn(true);
+    setUser(auth.currentUser);
     setUserRole(role);
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    auth.signOut();
+    setUser(null);
     setUserRole(null);
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <BrowserRouter>
+    <Router>
       <div className="app">
-        {isLoggedIn ? (
+        {user ? (
           <>
             <Navbar
-              isLoggedIn={isLoggedIn}
+              isLoggedIn={!!user}
               handleLogout={handleLogout}
               userRole={userRole}
             />
@@ -99,7 +118,6 @@ const App = () => {
                     path="/chatroom"
                     element={<ChatRoom userRole={userRole} />}
                   />
-                  <Route path="*" element={<Navigate to="/dashboard" />} />
                   <Route
                     path="/dynamic-prompts"
                     element={<Prompts userRole={userRole} />}
@@ -161,6 +179,7 @@ const App = () => {
                     path="/vocal-script"
                     element={<AIAccessibility userRole={userRole} />}
                   />
+                  <Route path="*" element={<Navigate to="/dashboard" />} />
                 </Routes>
               </div>
             </div>
@@ -172,8 +191,8 @@ const App = () => {
           </Routes>
         )}
       </div>
-    </BrowserRouter>
+    </Router>
   );
-};
+}
 
 export default App;
