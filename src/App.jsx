@@ -69,7 +69,7 @@ function App() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading-com">Loading...</div>;
   }
 
   return (
