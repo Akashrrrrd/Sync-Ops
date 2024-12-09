@@ -119,7 +119,7 @@ Professional Prompt Engineering Framework:
       console.error("Prompt Generation Error:", error);
       toast.error("AI Creativity Temporarily Unavailable", {
         ...toastConfig,
-        autoClose: 5000,
+        autoClose: 7500,
       });
     } finally {
       setLoading(false);
