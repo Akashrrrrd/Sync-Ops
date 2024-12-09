@@ -8,11 +8,13 @@ const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-// Configure marked options
+// Configure marked options for better parsing
 marked.setOptions({
   gfm: true,
   breaks: true,
   smartLists: true,
+  headerIds: false,
+  mangle: false,
 });
 
 const AIExplorer = () => {
@@ -44,15 +46,20 @@ const AIExplorer = () => {
     1. A concise title (max 8 words)
     2. A detailed explanation (2-3 sentences)
     3. Focus on current trends and future implications
-    Format: Title: Explanation
-
-    Please use markdown formatting for emphasis where appropriate.`;
+    
+    Format your response clearly without using markdown symbols like * or #. Avoid using bullet points.`;
   }, []);
 
   const sanitizeAndParseMarkdown = (text) => {
-    // First convert markdown to HTML
-    const rawHTML = marked(text);
-    // Then sanitize the HTML
+    // Remove markdown symbols while preserving readability
+    const cleanedText = text
+      .replace(/\*\*/g, "") // Remove bold markers
+      .replace(/\*/g, "") // Remove italic markers
+      .replace(/^#+\s*/gm, "") // Remove header markers
+      .trim();
+
+    // Convert to HTML and sanitize
+    const rawHTML = marked(cleanedText);
     return DOMPurify.sanitize(rawHTML);
   };
 
@@ -78,16 +85,28 @@ const AIExplorer = () => {
       const text = response.text();
 
       const parsedResults = text
-        .split("\n\n")
-        .filter(Boolean)
-        .map((paragraph) => {
-          const [title, ...summaryParts] = paragraph.split(":");
-          return {
-            title: sanitizeAndParseMarkdown(title.trim()),
-            summary: sanitizeAndParseMarkdown(summaryParts.join(":").trim()),
-            timestamp: new Date().toISOString(),
-          };
-        })
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .reduce((acc, line) => {
+          // Look for lines that seem to be titles (typically start with a capital letter)
+          if (/^[A-Z]/.test(line.trim())) {
+            acc.push({
+              title: line.trim(),
+              summary: "",
+              timestamp: new Date().toISOString(),
+            });
+          } else if (acc.length > 0) {
+            // Add to the most recent result's summary
+            acc[acc.length - 1].summary +=
+              (acc[acc.length - 1].summary ? " " : "") + line.trim();
+          }
+          return acc;
+        }, [])
+        .map((result) => ({
+          ...result,
+          title: sanitizeAndParseMarkdown(result.title),
+          summary: sanitizeAndParseMarkdown(result.summary),
+        }))
         .filter((result) => result.title && result.summary);
 
       const updatedCache = {

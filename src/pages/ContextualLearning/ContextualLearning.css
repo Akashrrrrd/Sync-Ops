@@ -83,6 +83,7 @@
 
 .learn-search-section {
   margin-bottom: 3rem;
+  padding: 1rem;
 }
 
 .learn-search-form {
@@ -92,54 +93,67 @@
 
 .learn-search-input-container {
   display: flex;
+  align-items: center;
   gap: 1rem;
   background: #ffffff;
-  padding: 0.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(59, 130, 246, 0.1);
-  transition: all 0.3s ease;
+  padding: 0.6rem 1rem;
+  border-radius: 50px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.learn-search-input-container:hover {
+  transform: translateY(-2px);
 }
 
 .learn-search-input-container:focus-within {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
 }
 
 .learn-search-input {
   flex: 1;
   background: transparent;
   border: none;
-  padding: 1rem;
+  padding: 0.8rem 1rem;
   color: #1e293b;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  outline: none;
 }
 
 .learn-search-input::placeholder {
   color: #94a3b8;
+  font-style: italic;
 }
 
 .learn-search-button {
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   border: none;
-  border-radius: 8px;
-  width: 50px;
-  height: 50px;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .learn-search-button:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .learn-search-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   fill: #ffffff;
+}
+
+/* Accessibility Enhancements */
+.learn-search-button:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.6);
+  outline-offset: 2px;
 }
 
 .learn-search-history {
@@ -311,9 +325,9 @@
 
 .learn-insight-number {
   background: linear-gradient(90deg, #2563eb, #3b82f6);
-  width: 30px;
+  width: 180px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
