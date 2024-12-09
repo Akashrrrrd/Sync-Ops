@@ -6,7 +6,7 @@
   font-size: 1.875rem;
   font-weight: 600;
   color: #1a56db;
-  padding: 1.75rem 0;
+  padding: 1rem 0;
   background-color: #f8fafc;
   margin-bottom: 1.5rem;
   border-radius: 0.75rem;
@@ -19,7 +19,7 @@
 
 .chatroom-container {
   display: flex;
-  height: 85vh;
+  height: 88vh;
   max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem;
@@ -49,7 +49,7 @@
   width: 100%;
   height: calc(100% - 4rem);
   border: none;
-  background-color: #f8fafc;
+  background-color: #fff;
   animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

@@ -1,65 +1,87 @@
 import React, { useState, useEffect } from "react";
 import "./Projects.css";
-import { FiSearch, FiSun, FiMoon } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 
 const Projects = () => {
-  const [projects, setProjects] = useState([
+  // Default projects to use if no localStorage data exists
+  const defaultProjects = [
     {
       id: 1,
-      name: "AI Chatbot Integration Application",
+      name: "AI-Powered Team Communication Tool",
       status: "Ongoing",
       deadline: "2024-11-25",
       progress: 65,
-      team: ["Alice", "Bob", "Charlie"],
+      team: ["Aarav", "Diya", "Kabir"],
     },
     {
       id: 2,
-      name: "Blockchain Payment System",
+      name: "Blockchain-Based Collaboration Suite",
       status: "Completed",
       deadline: "2024-09-15",
       progress: 100,
-      team: ["David", "Eve", "Frank"],
+      team: ["Neha", "Rohan", "Ishaan"],
     },
     {
       id: 3,
-      name: "Real-time Data Analytics Platform",
+      name: "Real-Time Project Tracking Dashboard",
       status: "Ongoing",
       deadline: "2024-12-01",
       progress: 45,
-      team: ["Grace", "Hannah", "Isaac"],
+      team: ["Ananya", "Vikram", "Riya"],
     },
     {
       id: 4,
-      name: "E-commerce Platform Redesign",
+      name: "Next-Gen Task Management Tool",
       status: "Ongoing",
       deadline: "2024-10-15",
       progress: 30,
-      team: ["Jack", "Kelly", "Liam"],
+      team: ["Priya", "Kunal", "Sanya"],
     },
     {
       id: 5,
-      name: "Mobile Banking App",
+      name: "Secure Video Conferencing App",
       status: "Completed",
       deadline: "2024-08-30",
       progress: 100,
-      team: ["Mia", "Noah", "Olivia"],
+      team: ["Meera", "Arjun", "Tanvi"],
     },
     {
       id: 6,
-      name: "Cloud Storage Integration System",
+      name: "Cloud-Based Document Collaboration",
       status: "Ongoing",
       deadline: "2024-12-20",
       progress: 50,
-      team: ["Paul", "Quincy", "Rachel"],
+      team: ["Raj", "Pooja", "Akshay"],
     },
-  ]);
+  ];
+
+  // Initialize state with a function to safely retrieve from localStorage
+  const [projects, setProjects] = useState(() => {
+    try {
+      // First, check if we're in a browser environment
+      if (typeof window !== "undefined") {
+        const savedProjects = localStorage.getItem("projectsData");
+
+        // If savedProjects exists and is not an empty string, parse and return
+        if (savedProjects && savedProjects !== "[]") {
+          const parsedProjects = JSON.parse(savedProjects);
+          return parsedProjects.length > 0 ? parsedProjects : defaultProjects;
+        }
+      }
+
+      // If no saved projects or localStorage is not available, return default
+      return defaultProjects;
+    } catch (error) {
+      console.error("Error reading localStorage:", error);
+      return defaultProjects;
+    }
+  });
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentProject, setCurrentProject] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [newProject, setNewProject] = useState({
     id: null,
     name: "",
@@ -68,11 +90,19 @@ const Projects = () => {
     progress: 0,
     team: [],
   });
-  const [newTeamMember, setNewTeamMember] = useState(""); // Store new team member input
+  const [newTeamMember, setNewTeamMember] = useState("");
 
+  // Update localStorage whenever projects change
   useEffect(() => {
-    document.body.classList.toggle("dark-mode", isDarkMode);
-  }, [isDarkMode]);
+    try {
+      // Ensure we're in a browser environment
+      if (typeof window !== "undefined") {
+        localStorage.setItem("projectsData", JSON.stringify(projects));
+      }
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+    }
+  }, [projects]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -85,14 +115,14 @@ const Projects = () => {
   const handleAddProject = () => {
     setShowModal(true);
     setNewProject({
-      id: projects.length + 1,
+      id: Date.now(), // Unique ID using timestamp
       name: "",
       status: "Ongoing",
       deadline: "",
       progress: 0,
       team: [],
     });
-    setNewTeamMember(""); // Clear new team member input
+    setNewTeamMember("");
     setIsEditing(false);
   };
 
@@ -105,12 +135,14 @@ const Projects = () => {
 
   const handleSaveProject = () => {
     if (isEditing) {
+      // Update existing project
       setProjects(
         projects.map((project) =>
           project.id === currentProject ? newProject : project
         )
       );
     } else {
+      // Add new project
       setProjects([...projects, newProject]);
     }
     setShowModal(false);
@@ -128,17 +160,13 @@ const Projects = () => {
     });
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
   const handleAddTeamMember = () => {
     if (newTeamMember && !newProject.team.includes(newTeamMember)) {
       setNewProject({
         ...newProject,
         team: [...newProject.team, newTeamMember],
       });
-      setNewTeamMember(""); // Clear input after adding
+      setNewTeamMember("");
     }
   };
 
@@ -170,9 +198,6 @@ const Projects = () => {
           <button className="add-project-btn" onClick={handleAddProject}>
             <AiOutlinePlus /> Add Project
           </button>
-          {/* <button className="toggle-theme-btn" onClick={toggleDarkMode}>
-            {isDarkMode ? <FiSun /> : <FiMoon />}
-          </button> */}
         </div>
       </div>
 

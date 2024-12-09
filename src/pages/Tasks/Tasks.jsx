@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Tasks.css";
 import axios from "axios";
 import { marked } from "marked";
@@ -89,56 +89,62 @@ const SafeMarkdown = ({ content }) => {
 };
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Design UI",
-      assignee: "John Doe",
-      priority: "High",
-      deadline: "2024-10-15",
-      status: "Completed",
-    },
-    {
-      id: 2,
-      title: "Develop API",
-      assignee: "Jane Smith",
-      priority: "Medium",
-      deadline: "2024-10-20",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      title: "Write Documentation",
-      assignee: "Alice Brown",
-      priority: "Low",
-      deadline: "2024-10-25",
-      status: "In Progress",
-    },
-    {
-      id: 4,
-      title: "Test Application",
-      assignee: "Mark Johnson",
-      priority: "High",
-      deadline: "2024-10-18",
-      status: "Pending",
-    },
-    {
-      id: 5,
-      title: "Fix Bugs",
-      assignee: "Sarah Lee",
-      priority: "Medium",
-      deadline: "2024-10-22",
-      status: "In Progress",
-    },
-    {
-      id: 6,
-      title: "Deploy to Production",
-      assignee: "Chris Evans",
-      priority: "High",
-      deadline: "2024-10-30",
-      status: "Pending",
-    },
-  ]);
+  // Load tasks from localStorage on initial render
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    return savedTasks
+      ? JSON.parse(savedTasks)
+      : [
+          {
+            id: 1,
+            title: "Design UI",
+            assignee: "John Doe",
+            priority: "High",
+            deadline: "2024-10-15",
+            status: "Completed",
+          },
+          {
+            id: 2,
+            title: "Develop API",
+            assignee: "Jane Smith",
+            priority: "Medium",
+            deadline: "2024-10-20",
+            status: "Pending",
+          },
+          {
+            id: 3,
+            title: "Write Documentation",
+            assignee: "Alice Brown",
+            priority: "Low",
+            deadline: "2024-10-25",
+            status: "In Progress",
+          },
+          {
+            id: 4,
+            title: "Test Application",
+            assignee: "Mark Johnson",
+            priority: "High",
+            deadline: "2024-10-18",
+            status: "Pending",
+          },
+          {
+            id: 5,
+            title: "Fix Bugs",
+            assignee: "Sarah Lee",
+            priority: "Medium",
+            deadline: "2024-10-22",
+            status: "In Progress",
+          },
+          {
+            id: 6,
+            title: "Deploy to Production",
+            assignee: "Chris Evans",
+            priority: "High",
+            deadline: "2024-10-30",
+            status: "Pending",
+          },
+        ];
+  });
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -151,6 +157,11 @@ const Tasks = () => {
   const [taskSummaries, setTaskSummaries] = useState({});
   const [suggestion, setSuggestion] = useState("");
   const [isLoading, setIsLoading] = useState({});
+
+  // Save tasks to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = () => {
     if (

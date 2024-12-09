@@ -20,22 +20,6 @@
     0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* Global styles */
-body {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-  background-color: var(--background-light);
-  color: var(--text-light);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body.dark-mode {
-  background-color: var(--background-dark);
-  color: var(--text-dark);
-}
-
 /* Container styles */
 .projects-container {
   max-width: 1440px;
@@ -379,7 +363,7 @@ body.dark-mode {
 
 .form-group input,
 .form-group select {
-  width: 100%;
+  width: 95%;
   padding: 0.875rem;
   border-radius: 0.75rem;
   border: 2px solid var(--border-light);
