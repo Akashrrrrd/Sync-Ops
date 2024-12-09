@@ -83,7 +83,7 @@ const Sidebar = () => {
       icon: <FaMicrophoneAlt />,
       name: "VocalScript",
       link: "/vocal-script",
-    },    
+    },
   ];
 
   return (

@@ -4,20 +4,45 @@ import { marked } from "marked";
 import "./ContentRewrite.css";
 
 const ContentRewrite = () => {
-  const [inputContent, setInputContent] = useState("");
-  const [rewrittenContent, setRewrittenContent] = useState("");
-  const [rewrittenMarkdown, setRewrittenMarkdown] = useState("");
-  const [tone, setTone] = useState("neutral");
+  // Load initial state from localStorage or use default values
+  const [inputContent, setInputContent] = useState(
+    () => localStorage.getItem("lastInputContent") || ""
+  );
+  const [rewrittenContent, setRewrittenContent] = useState(
+    () => localStorage.getItem("lastRewrittenContent") || ""
+  );
+  const [rewrittenMarkdown, setRewrittenMarkdown] = useState(
+    () => localStorage.getItem("lastRewrittenMarkdown") || ""
+  );
+  const [tone, setTone] = useState(
+    () => localStorage.getItem("lastTone") || "neutral"
+  );
   const [loading, setLoading] = useState(false);
-  const [wordLimit, setWordLimit] = useState("");
-  const [keywords, setKeywords] = useState("");
-  const [language, setLanguage] = useState("english");
-  const [complexity, setComplexity] = useState("medium");
+  const [wordLimit, setWordLimit] = useState(
+    () => localStorage.getItem("lastWordLimit") || ""
+  );
+  const [keywords, setKeywords] = useState(
+    () => localStorage.getItem("lastKeywords") || ""
+  );
+  const [language, setLanguage] = useState(
+    () => localStorage.getItem("lastLanguage") || "english"
+  );
+  const [complexity, setComplexity] = useState(
+    () => localStorage.getItem("lastComplexity") || "medium"
+  );
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [wordCount, setWordCount] = useState(0);
-  const [saveHistory, setSaveHistory] = useState([]);
+
+  // Load history from localStorage
+  const [saveHistory, setSaveHistory] = useState(() => {
+    const savedHistory = localStorage.getItem("rewriteHistory");
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  });
+
   const [showAllHistory, setShowAllHistory] = useState(false);
-  const [displayMode, setDisplayMode] = useState("text");
+  const [displayMode, setDisplayMode] = useState(
+    () => localStorage.getItem("lastDisplayMode") || "text"
+  );
 
   const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 
@@ -47,6 +72,49 @@ const ContentRewrite = () => {
     "Academic",
   ];
 
+  // Update localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem("lastInputContent", inputContent);
+  }, [inputContent]);
+
+  useEffect(() => {
+    localStorage.setItem("lastRewrittenContent", rewrittenContent);
+  }, [rewrittenContent]);
+
+  useEffect(() => {
+    localStorage.setItem("lastRewrittenMarkdown", rewrittenMarkdown);
+  }, [rewrittenMarkdown]);
+
+  useEffect(() => {
+    localStorage.setItem("lastTone", tone);
+  }, [tone]);
+
+  useEffect(() => {
+    localStorage.setItem("lastWordLimit", wordLimit);
+  }, [wordLimit]);
+
+  useEffect(() => {
+    localStorage.setItem("lastKeywords", keywords);
+  }, [keywords]);
+
+  useEffect(() => {
+    localStorage.setItem("lastLanguage", language);
+  }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem("lastComplexity", complexity);
+  }, [complexity]);
+
+  useEffect(() => {
+    localStorage.setItem("lastDisplayMode", displayMode);
+  }, [displayMode]);
+
+  // Update localStorage when history changes
+  useEffect(() => {
+    localStorage.setItem("rewriteHistory", JSON.stringify(saveHistory));
+  }, [saveHistory]);
+
+  // Word count calculation
   useEffect(() => {
     const words = inputContent
       .trim()
@@ -127,14 +195,24 @@ const ContentRewrite = () => {
       setRewrittenMarkdown(markdownText);
       generateAiSuggestions();
 
-      setSaveHistory([
-        ...saveHistory,
-        {
-          original: inputContent,
-          rewritten: rewrittenText,
-          timestamp: new Date().toLocaleString(),
-        },
-      ]);
+      // Add to history
+      const newHistoryItem = {
+        original: inputContent,
+        rewritten: rewrittenText,
+        timestamp: new Date().toLocaleString(),
+        tone,
+        language,
+        complexity,
+        wordLimit,
+        keywords,
+      };
+
+      const updatedHistory = [...saveHistory, newHistoryItem];
+
+      // Limit history to last 20 items
+      const limitedHistory = updatedHistory.slice(-20);
+
+      setSaveHistory(limitedHistory);
     } catch (error) {
       console.error("Error rewriting content:", error);
       showNotification("Something went wrong! Please try again.", "error");
@@ -161,6 +239,7 @@ const ContentRewrite = () => {
 
   const handleClearHistory = () => {
     setSaveHistory([]);
+    localStorage.removeItem("rewriteHistory");
     showNotification("History cleared successfully!");
   };
 
@@ -168,8 +247,8 @@ const ContentRewrite = () => {
     if (saveHistory.length === 0) return null;
 
     const displayedHistory = showAllHistory
-      ? saveHistory
-      : saveHistory.slice(-3);
+      ? saveHistory.slice().reverse() // Show most recent first
+      : saveHistory.slice(-3).reverse();
 
     return (
       <div className="core-history-section">
@@ -202,6 +281,11 @@ const ContentRewrite = () => {
                 <div className="core-history-rewritten">
                   {item.rewritten.substring(0, 100)}...
                 </div>
+              </div>
+              <div className="core-history-details">
+                <span>Tone: {item.tone}</span>
+                <span>Language: {item.language}</span>
+                <span>Complexity: {item.complexity}</span>
               </div>
             </div>
           ))}

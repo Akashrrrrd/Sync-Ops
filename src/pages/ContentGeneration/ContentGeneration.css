@@ -265,16 +265,27 @@
 .coge-content-generator__textarea {
   width: 96%;
   min-height: 180px;
-  padding: 1.25rem;
+  padding: 1.5rem;
   border: 2px solid #e2e8f0;
   border-radius: 16px;
   font-size: 1rem;
-  line-height: 1.7;
+  line-height: 1.5; /* Consistent line spacing for paragraphs */
   resize: vertical;
   transition: all 0.3s ease;
   background-color: #ffffff;
   position: relative;
   z-index: 2;
+}
+
+.coge-content-generator__textarea h1,
+.coge-content-generator__textarea h2,
+.coge-content-generator__textarea h3,
+.coge-content-generator__textarea h4,
+.coge-content-generator__textarea h5,
+.coge-content-generator__textarea h6 {
+  line-height: 1.2; /* Reduced line-height specifically for headings */
+  margin-top: 0.5rem; /* Optional: Adjust top margin for spacing between text blocks */
+  margin-bottom: 0.5rem; /* Optional: Adjust bottom margin for spacing */
 }
 
 .coge-content-generator__textarea:focus {
@@ -283,23 +294,24 @@
   box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
 }
 
-/* Button Styles */
+/* Enhanced Button Styles */
 .coge-content-generator__button {
-  width: 100%;
-  padding: 1.25rem;
-  margin-top: 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 700;
+  padding: 1rem 2rem;
+  margin: 1.5rem auto;
+  display: block;
+  font-size: 1rem;
+  font-weight: bold;
   color: #ffffff;
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: linear-gradient(135deg, #1e90ff, #0066cc);
   border: none;
-  border-radius: 12px;
+  border-radius: 24px;
   cursor: pointer;
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .coge-content-generator__button::before {
@@ -307,24 +319,32 @@
   position: absolute;
   top: 0;
   left: -100%;
-  width: 100%;
+  width: 200%;
   height: 100%;
   background: linear-gradient(
     120deg,
     transparent,
-    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.3),
     transparent
   );
-  transition: all 0.5s ease;
+  transition: all 0.4s ease-in-out;
+  z-index: 1;
 }
 
 .coge-content-generator__button:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 102, 204, 0.3);
+  background: linear-gradient(135deg, #0066cc, #003399);
 }
 
 .coge-content-generator__button:hover::before {
   left: 100%;
+}
+
+.coge-content-generator__button:active {
+  transform: scale(0.98);
+  background: linear-gradient(135deg, #003399, #002266);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .coge-content-generator__loading-text {

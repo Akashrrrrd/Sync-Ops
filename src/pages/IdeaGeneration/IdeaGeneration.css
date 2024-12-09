@@ -180,27 +180,64 @@
 }
 
 /* Generate Button */
+/* Enhanced Generate Button Styles */
 .generate-button {
-  width: 100%;
-  padding: 16px;
+  width: 25%;
+  margin-left: 425px;
+  padding: 18px 20px;
   border: none;
-  border-radius: 10px;
+  border-radius: 30px;
   background: linear-gradient(90deg, #2196f3, #00bcd4);
-  color: white;
+  color: #ffffff;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease-in-out;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 6px 12px rgba(33, 150, 243, 0.2);
+  position: relative;
+  overflow: hidden;
 }
 
-.generate-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+.generate-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: all 0.6s ease-in-out;
+  z-index: 1;
+}
+
+.generate-button:hover::before {
+  left: 100%;
+}
+
+.generate-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
+  background: linear-gradient(90deg, #00bcd4, #2196f3);
+}
+
+.generate-button:active {
+  transform: translateY(2px);
+  background: linear-gradient(90deg, #008c9e, #2196f3);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
 }
 
 .generate-button:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
+  background: linear-gradient(90deg, #b0bec5, #cfd8dc);
 }
 
 .generate-button.loading {

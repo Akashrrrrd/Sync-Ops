@@ -129,7 +129,8 @@
 }
 
 .sum-summarization-button {
-  width: 100%;
+  width: 25%;
+  margin-left: 425px;
   padding: 18px 40px;
   font-size: 1.2em;
   color: var(--white);
@@ -139,7 +140,7 @@
     var(--secondary-color)
   );
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 50px;
   cursor: pointer;
   transition: all var(--transition-speed) ease;
   font-weight: 600;

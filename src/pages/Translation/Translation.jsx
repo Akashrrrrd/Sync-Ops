@@ -4,15 +4,64 @@ import "./Translation.css";
 const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 
 const Translation = () => {
-  const [inputText, setInputText] = useState("");
-  const [translatedText, setTranslatedText] = useState("");
-  const [sourceLanguage, setSourceLanguage] = useState("english");
-  const [targetLanguage, setTargetLanguage] = useState("spanish");
+  // Retrieve initial state from localStorage or use default values
+  const [inputText, setInputText] = useState(
+    () => localStorage.getItem("inputText") || ""
+  );
+  const [translatedText, setTranslatedText] = useState(
+    () => localStorage.getItem("translatedText") || ""
+  );
+  const [sourceLanguage, setSourceLanguage] = useState(
+    () => localStorage.getItem("sourceLanguage") || "english"
+  );
+  const [targetLanguage, setTargetLanguage] = useState(
+    () => localStorage.getItem("targetLanguage") || "spanish"
+  );
   const [loading, setLoading] = useState(false);
-  const [translationHistory, setTranslationHistory] = useState([]);
-  const [confidence, setConfidence] = useState(0);
-  const [suggestions, setSuggestions] = useState([]);
+  const [translationHistory, setTranslationHistory] = useState(() => {
+    const savedHistory = localStorage.getItem("translationHistory");
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  });
+  const [confidence, setConfidence] = useState(
+    () => parseInt(localStorage.getItem("confidence")) || 0
+  );
+  const [suggestions, setSuggestions] = useState(() => {
+    const savedSuggestions = localStorage.getItem("suggestions");
+    return savedSuggestions ? JSON.parse(savedSuggestions) : [];
+  });
   const [error, setError] = useState(null);
+
+  // Update localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem("inputText", inputText);
+  }, [inputText]);
+
+  useEffect(() => {
+    localStorage.setItem("translatedText", translatedText);
+  }, [translatedText]);
+
+  useEffect(() => {
+    localStorage.setItem("sourceLanguage", sourceLanguage);
+  }, [sourceLanguage]);
+
+  useEffect(() => {
+    localStorage.setItem("targetLanguage", targetLanguage);
+  }, [targetLanguage]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "translationHistory",
+      JSON.stringify(translationHistory)
+    );
+  }, [translationHistory]);
+
+  useEffect(() => {
+    localStorage.setItem("confidence", confidence.toString());
+  }, [confidence]);
+
+  useEffect(() => {
+    localStorage.setItem("suggestions", JSON.stringify(suggestions));
+  }, [suggestions]);
 
   const languages = [
     "English",
@@ -184,6 +233,7 @@ Nuances: [Brief explanation]`,
 
   const clearHistory = () => {
     setTranslationHistory([]);
+    localStorage.removeItem("translationHistory");
     showNotification("Translation history cleared!", "success");
   };
 
@@ -197,6 +247,29 @@ Nuances: [Brief explanation]`,
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
   }, [inputText, sourceLanguage, targetLanguage]);
+
+  // Add a method to clear all persisted data
+  const clearAllData = () => {
+    // Clear localStorage
+    localStorage.removeItem("inputText");
+    localStorage.removeItem("translatedText");
+    localStorage.removeItem("sourceLanguage");
+    localStorage.removeItem("targetLanguage");
+    localStorage.removeItem("translationHistory");
+    localStorage.removeItem("confidence");
+    localStorage.removeItem("suggestions");
+
+    // Reset state
+    setInputText("");
+    setTranslatedText("");
+    setSourceLanguage("english");
+    setTargetLanguage("spanish");
+    setTranslationHistory([]);
+    setConfidence(0);
+    setSuggestions([]);
+
+    showNotification("All data cleared!", "success");
+  };
 
   return (
     <div className="translation-container">
@@ -332,9 +405,14 @@ Nuances: [Brief explanation]`,
         <div className="history-section">
           <div className="history-header">
             <h3>Translation History</h3>
-            <button className="clear-history" onClick={clearHistory}>
-              Clear History
-            </button>
+            <div className="history-actions">
+              <button className="clear-history" onClick={clearHistory}>
+                Clear History
+              </button>
+              <button className="clear-all-data" onClick={clearAllData}>
+                Clear All Data
+              </button>
+            </div>
           </div>
           <div className="history-list">
             {translationHistory.map((item, index) => (

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./ContentGeneration.css";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import "react-toastify/dist/ReactToastify.css";
 
 const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
 
@@ -38,10 +39,10 @@ const ContentGeneration = () => {
   ];
 
   const lengthOptions = [
-    { value: "short", label: "Short (100 words)", maxTokens: 100 },
-    { value: "medium", label: "Medium (300 words)", maxTokens: 300 },
-    { value: "long", label: "Long (500 words)", maxTokens: 500 },
-    { value: "custom", label: "Custom Length", maxTokens: 750 },
+    { value: "short", label: "Short (100 words)", maxTokens: 200 },
+    { value: "medium", label: "Medium (300 words)", maxTokens: 400 },
+    { value: "long", label: "Long (500 words)", maxTokens: 800 },
+    { value: "custom", label: "Custom Length", maxTokens: 1000 },
   ];
 
   const promptTemplates = [
@@ -52,18 +53,67 @@ const ContentGeneration = () => {
     "Compose a business proposal about renewable energy.",
   ];
 
+  // Comprehensive initialization from localStorage
   useEffect(() => {
+    // Restore API Key
     const savedApiKey = localStorage.getItem("geminiApiKey");
     if (savedApiKey) {
       setApiKey(savedApiKey);
     }
 
+    // Restore Content History
     const savedHistory = localStorage.getItem("contentHistory");
     if (savedHistory) {
       setContentHistory(JSON.parse(savedHistory));
     }
+
+    // Restore Last Used Prompt
+    const savedPrompt = localStorage.getItem("lastUsedPrompt");
+    if (savedPrompt) {
+      setInputPrompt(savedPrompt);
+    }
+
+    // Restore Last Used Tone
+    const savedTone = localStorage.getItem("lastUsedTone");
+    if (savedTone) {
+      setSelectedTone(savedTone);
+    }
+
+    // Restore Last Used Length
+    const savedLength = localStorage.getItem("lastUsedLength");
+    if (savedLength) {
+      setSelectedLength(savedLength);
+    }
+
+    // Restore Generated Content
+    const savedContent = localStorage.getItem("lastGeneratedContent");
+    if (savedContent) {
+      setGeneratedContent(savedContent);
+    }
   }, []);
 
+  // Update localStorage when key states change
+  useEffect(() => {
+    if (inputPrompt) {
+      localStorage.setItem("lastUsedPrompt", inputPrompt);
+    }
+  }, [inputPrompt]);
+
+  useEffect(() => {
+    localStorage.setItem("lastUsedTone", selectedTone);
+  }, [selectedTone]);
+
+  useEffect(() => {
+    localStorage.setItem("lastUsedLength", selectedLength);
+  }, [selectedLength]);
+
+  useEffect(() => {
+    if (generatedContent) {
+      localStorage.setItem("lastGeneratedContent", generatedContent);
+    }
+  }, [generatedContent]);
+
+  // Word and character count tracking
   useEffect(() => {
     if (inputPrompt) {
       const words = inputPrompt.trim().split(/\s+/).length;
@@ -76,6 +126,7 @@ const ContentGeneration = () => {
     }
   }, [inputPrompt]);
 
+  // Content Generation Function
   const handleGenerateContent = async () => {
     if (!GEMINI_API_KEY) {
       setError("Gemini API key is missing.");
@@ -139,6 +190,7 @@ const ContentGeneration = () => {
       const generatedText = data.candidates[0].content.parts[0].text.trim();
 
       setGeneratedContent(generatedText);
+      localStorage.setItem("lastGeneratedContent", generatedText);
 
       // Add to history
       const newHistoryItem = {
@@ -161,12 +213,14 @@ const ContentGeneration = () => {
     }
   };
 
+  // Input Change Handler
   const handleInputChange = (e) => {
     setInputPrompt(e.target.value);
     setError("");
     autoResizeTextarea();
   };
 
+  // Textarea Auto-resize
   const autoResizeTextarea = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -175,6 +229,7 @@ const ContentGeneration = () => {
     }
   };
 
+  // Copy Generated Content
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(generatedContent);
@@ -186,6 +241,7 @@ const ContentGeneration = () => {
     }
   };
 
+  // Save Generated Content
   const handleSave = () => {
     if (!generatedContent) return;
 
@@ -205,11 +261,13 @@ const ContentGeneration = () => {
     setTimeout(() => setSaveStatus(""), 2000);
   };
 
+  // Template Selection
   const handleTemplateSelect = (template) => {
     setInputPrompt(template);
     textareaRef.current?.focus();
   };
 
+  // API Key Saving
   const handleSaveApiKey = () => {
     if (apiKey) {
       localStorage.setItem("geminiApiKey", apiKey);
@@ -217,11 +275,17 @@ const ContentGeneration = () => {
     }
   };
 
+  // Clear Generation History
   const clearHistory = () => {
     setContentHistory([]);
     localStorage.removeItem("contentHistory");
+    localStorage.removeItem("lastGeneratedContent");
+    localStorage.removeItem("lastUsedPrompt");
+    setGeneratedContent("");
+    setInputPrompt("");
   };
 
+  // Markdown Rendering
   const renderContent = (content) => {
     if (!content) return "";
 

@@ -58,7 +58,7 @@ const RECOMMENDED_PROMPTS = [
 ];
 
 const toastConfig = {
-  position: "bottom-right",
+  position: "top-right",
   autoClose: 3000,
   hideProgressBar: false,
   closeOnClick: true,
@@ -70,14 +70,45 @@ const toastConfig = {
 };
 
 const DynamicPrompts = () => {
-  const [userInput, setUserInput] = useState("");
-  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  // Initialize state from localStorage with fallback
+  const [userInput, setUserInput] = useState(
+    () => localStorage.getItem("currentUserInput") || ""
+  );
+
+  const [generatedPrompt, setGeneratedPrompt] = useState(
+    () => localStorage.getItem("currentGeneratedPrompt") || ""
+  );
+
+  const [promptHistory, setPromptHistory] = useState(() => {
+    const savedHistory = localStorage.getItem("promptHistory");
+    return savedHistory
+      ? JSON.parse(savedHistory).map((item) => ({
+          ...item,
+          timestamp: new Date(item.timestamp),
+        }))
+      : [];
+  });
+
   const [loading, setLoading] = useState(false);
-  const [promptHistory, setPromptHistory] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
 
   const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
   const genAI = new GoogleGenerativeAI(API_KEY);
+
+  // Persist user input to localStorage
+  useEffect(() => {
+    localStorage.setItem("currentUserInput", userInput);
+  }, [userInput]);
+
+  // Persist generated prompt to localStorage
+  useEffect(() => {
+    localStorage.setItem("currentGeneratedPrompt", generatedPrompt);
+  }, [generatedPrompt]);
+
+  // Update localStorage whenever promptHistory changes
+  useEffect(() => {
+    localStorage.setItem("promptHistory", JSON.stringify(promptHistory));
+  }, [promptHistory]);
 
   const generatePrompt = useCallback(async () => {
     if (!userInput.trim()) {
@@ -113,7 +144,12 @@ Professional Prompt Engineering Framework:
         timestamp: new Date(),
       };
 
-      setPromptHistory((prev) => [newPromptItem, ...prev.slice(0, 9)]);
+      // Limit history to 10 most recent items
+      setPromptHistory((prev) => {
+        const updatedHistory = [newPromptItem, ...prev.slice(0, 9)];
+        return updatedHistory;
+      });
+
       toast.success("Prompt Generated Successfully!", toastConfig);
     } catch (error) {
       console.error("Prompt Generation Error:", error);
@@ -137,11 +173,14 @@ Professional Prompt Engineering Framework:
   const resetFields = useCallback(() => {
     setUserInput("");
     setGeneratedPrompt("");
+    localStorage.removeItem("currentUserInput");
+    localStorage.removeItem("currentGeneratedPrompt");
     toast.info("Fields Reset", toastConfig);
   }, []);
 
   const clearHistory = useCallback(() => {
     setPromptHistory([]);
+    localStorage.removeItem("promptHistory");
     toast.info("Prompt History Cleared", toastConfig);
   }, []);
 
@@ -292,6 +331,7 @@ Professional Prompt Engineering Framework:
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

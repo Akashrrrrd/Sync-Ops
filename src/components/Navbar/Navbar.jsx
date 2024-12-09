@@ -73,31 +73,88 @@ const LoadingIndicator = () => (
 );
 
 // SearchBar Component remains the same
-const SearchBar = () => (
-  <div className="search-container">
-    <input
-      type="text"
-      placeholder="Search AI-enhanced..."
-      className="search-input"
-    />
-    <button className="search-button">
-      <svg
-        className="search-icon"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
-    </button>
-  </div>
-);
+const SearchBar = () => {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate();
+
+  // Mock data for search suggestions
+  const items = [
+    { id: 1, name: "Dynamic Prompts", path: "/dynamic-prompts" },
+    { id: 2, name: "Content Generation", path: "/content-generation" },
+    { id: 3, name: "Content Rewrite", path: "/content-rewrite" },
+    { id: 4, name: "Summarization", path: "/summarization" },
+    { id: 5, name: "Translation", path: "/translation" },
+    { id: 6, name: "Idea Generation", path: "/idea-generation" },
+    { id: 7, name: "Data Insights", path: "/data-insights-generator" },
+    { id: 8, name: "Contextual Learning", path: "/contextual-learning" },
+    { id: 9, name: "Content Anonymizer", path: "/content-anonymizer" },
+    { id: 10, name: "Content Rewrite", path: "/content-rewrite" },
+  ];
+
+  // Handle input change and filter suggestions
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    if (value.trim() !== "") {
+      const filteredSuggestions = items.filter((item) =>
+        item.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  // Handle click on a suggestion
+  const handleSuggestionClick = (path) => {
+    navigate(path); // Navigate to the selected path
+    setQuery("");
+    setSuggestions([]);
+  };
+
+  return (
+    <div className="search-container">
+      <input
+        type="text"
+        placeholder="Search AI-enhanced..."
+        className="search-input"
+        value={query}
+        onChange={handleInputChange}
+      />
+      <button className="search-button">
+        <svg
+          className="search-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </button>
+      {suggestions.length > 0 && (
+        <div className="dropdown">
+          {suggestions.map((item) => (
+            <div
+              key={item.id}
+              className="dropdown-item"
+              onClick={() => handleSuggestionClick(item.path)}
+            >
+              {item.name}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // AIModal Component remains the same (no changes needed)
 const AIModal = ({

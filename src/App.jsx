@@ -34,6 +34,7 @@ import AIWorkflow from "./pages/AIWorkflow/AIWorkflow";
 import ContextualLearning from "./pages/ContextualLearning/ContextualLearning";
 import ContentAnonymizer from "./pages/ContentAnonymizer/ContentAnonymizer";
 import AIAccessibility from "./pages/AIAccessibility/AIAccessibility";
+import ScrollToTop from "./components/ScrollToTop"; // Import ScrollToTop component
 import "./App.css";
 import "./components/i18n/i18n";
 
@@ -74,6 +75,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop /> {/* Add ScrollToTop component here */}
       <div className="app">
         {user ? (
           <>
