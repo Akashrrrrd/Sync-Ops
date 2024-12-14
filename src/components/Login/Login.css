@@ -226,12 +226,13 @@
 }
 
 .login-auth-button {
-  width: 100%;
+  width: 25%;
+  margin-left: 240px;
   padding: 1.1rem;
   background: var(--ai-gradient);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 50px;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
@@ -395,14 +396,14 @@
 
 .login-guest-button {
   position: relative;
-  width: 50%;
-  padding: 12px 20px;
+  width: 40%;
+  padding: 1.1rem;
   margin-top: 15px;
-  margin-left: 160px;
+  margin-left: 200px;
   background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
   color: #f0f0f0;
   border: none;
-  border-radius: 10px;
+  border-radius: 50px;
   font-weight: 600;
   font-size: 16px;
   text-transform: uppercase;

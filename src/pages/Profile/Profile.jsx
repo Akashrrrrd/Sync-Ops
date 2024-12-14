@@ -1,66 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Profile.css";
 
 const Profile = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "Akash R",
-    title: "Full Stack MERN Developer | AI Enthusiast",
-    email: "akashr.ece2022@citchennai.com",
-    phone: "+123 456 7890",
-    about:
-      "I'm a Full Stack Developer with a passion for AI and innovative web solutions. I specialize in MERN stack development, building scalable, dynamic web applications, and integrating AI-driven features into real-world solutions.",
-    skills: [
-      { id: 1, name: "React.js", level: 85 },
-      { id: 2, name: "Node.js", level: 80 },
-      { id: 3, name: "MongoDB", level: 75 },
-      { id: 4, name: "AI / Machine Learning", level: 70 },
-    ],
-    projects: [
-      {
-        id: 1,
-        title: "AI-Powered E-Commerce",
-        description:
-          "Created an AI-driven product recommendation system for an e-commerce platform using machine learning algorithms.",
-        technologies: ["React", "Node.js", "MongoDB", "AI"],
-      },
-      {
-        id: 2,
-        title: "Real-Time Collaboration App",
-        description:
-          "A full-stack web app that integrates live chat, file sharing, and real-time collaboration features for remote teams.",
-        technologies: ["React", "WebSockets", "Express", "MongoDB"],
-      },
-      {
-        id: 3,
-        title: "Smart Home Automation",
-        description:
-          "Developed a smart home management system that uses AI to optimize energy consumption and automate home devices.",
-        technologies: ["React Native", "IoT", "Machine Learning"],
-      },
-    ],
-    socialMedia: [
-      {
-        id: 1,
-        platform: "LinkedIn",
-        url: "https://www.linkedin.com/in/akashr",
-        icon: "fab fa-linkedin-in",
-      },
-      {
-        id: 2,
-        platform: "GitHub",
-        url: "https://github.com/akashr",
-        icon: "fab fa-github",
-      },
-      {
-        id: 3,
-        platform: "Twitter",
-        url: "https://twitter.com/akashr",
-        icon: "fab fa-twitter",
-      },
-    ],
+  const [profileData, setProfileData] = useState(() => {
+    // Initialize from local storage or set to empty state
+    const savedProfile = localStorage.getItem("userProfile");
+    return savedProfile
+      ? JSON.parse(savedProfile)
+      : {
+          name: "",
+          title: "",
+          email: "",
+          phone: "",
+          about: "",
+          profileImage: null,
+          skills: [],
+          projects: [],
+          socialMedia: [],
+        };
   });
+
+  // Save profile data to local storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("userProfile", JSON.stringify(profileData));
+  }, [profileData]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -90,7 +55,7 @@ const Profile = () => {
   const addSkill = () => {
     const newSkill = {
       id: Date.now(),
-      name: "New Skill",
+      name: "",
       level: 50,
     };
     setProfileData((prev) => ({
@@ -118,8 +83,8 @@ const Profile = () => {
   const addProject = () => {
     const newProject = {
       id: Date.now(),
-      title: "New Project",
-      description: "Project description",
+      title: "",
+      description: "",
       technologies: [],
     };
     setProfileData((prev) => ({
@@ -132,6 +97,52 @@ const Profile = () => {
     setProfileData((prev) => ({
       ...prev,
       projects: prev.projects.filter((project) => project.id !== id),
+    }));
+  };
+
+  const handleProfileImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileData((prev) => ({
+          ...prev,
+          profileImage: reader.result,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const addSocialMedia = () => {
+    const newSocialMedia = {
+      id: Date.now(),
+      platform: "",
+      url: "",
+      icon: "",
+    };
+    setProfileData((prev) => ({
+      ...prev,
+      socialMedia: [...prev.socialMedia, newSocialMedia],
+    }));
+  };
+
+  const handleSocialMediaChange = (index, field, value) => {
+    const updatedSocialMedia = [...profileData.socialMedia];
+    updatedSocialMedia[index] = {
+      ...updatedSocialMedia[index],
+      [field]: value,
+    };
+    setProfileData((prev) => ({
+      ...prev,
+      socialMedia: updatedSocialMedia,
+    }));
+  };
+
+  const deleteSocialMedia = (id) => {
+    setProfileData((prev) => ({
+      ...prev,
+      socialMedia: prev.socialMedia.filter((social) => social.id !== id),
     }));
   };
 
@@ -194,11 +205,22 @@ const Profile = () => {
 
       <div className="pro-profile-header">
         <div className="pro-image-container">
-          <img
-            src="https://via.placeholder.com/250"
-            alt="Profile"
-            className="pro-profile-image"
-          />
+          {isEditing ? (
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleProfileImageUpload}
+              className="pro-file-input"
+            />
+          ) : (
+            <img
+              src={
+                profileData.profileImage || "https://via.placeholder.com/250"
+              }
+              alt="Profile"
+              className="pro-profile-image"
+            />
+          )}
         </div>
         <div className="pro-info">
           {isEditing ? (
@@ -244,18 +266,22 @@ const Profile = () => {
               </>
             ) : (
               <>
-                <a
-                  href={`mailto:${profileData.email}`}
-                  className="pro-contact-link"
-                >
-                  <i className="fas fa-envelope"></i> {profileData.email}
-                </a>
-                <a
-                  href={`tel:${profileData.phone}`}
-                  className="pro-contact-link"
-                >
-                  <i className="fas fa-phone-alt"></i> {profileData.phone}
-                </a>
+                {profileData.email && (
+                  <a
+                    href={`mailto:${profileData.email}`}
+                    className="pro-contact-link"
+                  >
+                    <i className="fas fa-envelope"></i> {profileData.email}
+                  </a>
+                )}
+                {profileData.phone && (
+                  <a
+                    href={`tel:${profileData.phone}`}
+                    className="pro-contact-link"
+                  >
+                    <i className="fas fa-phone-alt"></i> {profileData.phone}
+                  </a>
+                )}
               </>
             )}
           </div>
@@ -276,7 +302,7 @@ const Profile = () => {
               placeholder="About Me"
             />
           ) : (
-            <p>{profileData.about}</p>
+            profileData.about && <p>{profileData.about}</p>
           )}
         </section>
 
@@ -364,23 +390,95 @@ const Profile = () => {
                     </div>
                     <button
                       onClick={() => deleteProject(project.id)}
-                      className="pro-delete-btn"
+                      className="pro-delete-btns"
                     >
                       Delete Project
                     </button>
                   </div>
                 ) : (
                   <>
-                    <h3>{project.title}</h3>
-                    <p>{project.description}</p>
-                    <div className="pro-project-technologies">
-                      {project.technologies.map((tech) => (
-                        <span key={tech} className="pro-tech-badge">
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
+                    {project.title && <h3>{project.title}</h3>}
+                    {project.description && <p>{project.description}</p>}
+                    {project.technologies.length > 0 && (
+                      <div className="pro-project-technologies">
+                        {project.technologies.map((tech) => (
+                          <span key={tech} className="pro-tech-badge">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="pro-social-media">
+          <div className="pro-section-header">
+            <h2>Social Media</h2>
+            {isEditing && (
+              <button onClick={addSocialMedia} className="pro-add-btn">
+                Add Social Media
+              </button>
+            )}
+          </div>
+          <div className="pro-social-media-list">
+            {profileData.socialMedia.map((social, index) => (
+              <div className="pro-social-media-item" key={social.id}>
+                {isEditing ? (
+                  <div className="pro-social-media-edit">
+                    <input
+                      type="text"
+                      className="pro-input"
+                      value={social.platform}
+                      onChange={(e) =>
+                        handleSocialMediaChange(
+                          index,
+                          "platform",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Platform"
+                    />
+                    <input
+                      type="text"
+                      className="pro-input"
+                      value={social.url}
+                      onChange={(e) =>
+                        handleSocialMediaChange(index, "url", e.target.value)
+                      }
+                      placeholder="URL"
+                    />
+                    <input
+                      type="text"
+                      className="pro-input"
+                      value={social.icon}
+                      onChange={(e) =>
+                        handleSocialMediaChange(index, "icon", e.target.value)
+                      }
+                      placeholder="Icon Class"
+                    />
+                    <button
+                      onClick={() => deleteSocialMedia(social.id)}
+                      className="pro-delete-btn"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ) : (
+                  social.url && (
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="pro-social-media-link"
+                    >
+                      {social.icon && <i className={social.icon}></i>}
+                      {social.platform}
+                    </a>
+                  )
                 )}
               </div>
             ))}
