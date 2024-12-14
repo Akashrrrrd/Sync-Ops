@@ -183,7 +183,15 @@ const Login = ({ onLogin }) => {
     }
   };
 
-  const toggleView = () => {
+  const toggleView = (e) => {
+    // Prevent the default link behavior
+    e.preventDefault();
+    // Reset form fields when switching views
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setPassword("");
+    // Toggle between login and signup
     setIsLogin(!isLogin);
   };
 
