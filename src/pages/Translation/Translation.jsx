@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Translation.css";
 
-const GEMINI_API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
+const GEMINI_API_KEY = "AIzaSyAR1VHfeajOVi3V8-7H48gcQVmjUMUY3XU";
 
 const Translation = () => {
   // Retrieve initial state from localStorage or use default values
@@ -409,7 +409,7 @@ Nuances: [Brief explanation]`,
               <button className="clear-history" onClick={clearHistory}>
                 Clear History
               </button>
-              <button className="clear-all-data" onClick={clearAllData}>
+              <button className="clear-history" onClick={clearAllData}>
                 Clear All Data
               </button>
             </div>

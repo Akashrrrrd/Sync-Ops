@@ -12,10 +12,13 @@ const AIAccessibility = () => {
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   // API Configuration
-  const API_KEY = "AIzaSyBRlNfkdImoF0XMv-J5jKWcWCcpL6lKPVQ";
+  const API_KEY = "AIzaSyAR1VHfeajOVi3V8-7H48gcQVmjUMUY3XU";
   const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
   const VISION_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${API_KEY}`;
 
@@ -58,7 +61,7 @@ const AIAccessibility = () => {
             {
               parts: [
                 {
-                  text: `Enhance this text for natural speech: ${text}`,
+                  text: `Enhance this text: ${text}`,
                 },
               ],
             },
@@ -253,6 +256,40 @@ const AIAccessibility = () => {
     fileInputRef.current.click();
   };
 
+  const startSpeechRecognition = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      setError("Speech recognition not supported in this browser");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = selectedVoice;
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      setError(null);
+    };
+
+    recognition.onresult = async (event) => {
+      const transcript = event.results[0][0].transcript;
+      const enhancedTranscript = await processWithAI(transcript);
+      setContent(enhancedTranscript);
+    };
+
+    recognition.onerror = (event) => {
+      setIsRecording(false);
+      setError(`Speech recognition error: ${event.error}`);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.start();
+  };
+
   if (!mode) {
     return (
       <div className="access-container">
@@ -271,11 +308,17 @@ const AIAccessibility = () => {
               >
                 Text to Speech
               </button>
-              <button
+              {/* <button
                 className="access-button mode-button"
                 onClick={() => setMode("video")}
               >
                 Video to Text
+              </button> */}
+              <button
+                className="access-button mode-button"
+                onClick={() => setMode("audio")}
+              >
+                Speech to Text
               </button>
             </div>
           </div>
@@ -291,7 +334,9 @@ const AIAccessibility = () => {
           <h1 className="access-title">
             {mode === "speech"
               ? "AI-Powered Text to Speech"
-              : "Video to Text Converter"}
+              : mode === "video"
+              ? "Video to Text Converter"
+              : "Speech to Text Converter"}
           </h1>
           <p className="access-subtitle">Powered by Google's Gemini AI</p>
         </div>
@@ -307,7 +352,7 @@ const AIAccessibility = () => {
                 disabled={isSpeaking}
               />
 
-              <select
+              {/* <select
                 className="access-voice-select"
                 value={selectedVoice}
                 onChange={handleVoiceChange}
@@ -318,9 +363,9 @@ const AIAccessibility = () => {
                     {`${voice.name} (${voice.lang})`}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
-          ) : (
+          ) : mode === "video" ? (
             <div className="access-video-container">
               <input
                 type="file"
@@ -358,6 +403,28 @@ const AIAccessibility = () => {
                 placeholder="Video analysis will appear here..."
               />
             </div>
+          ) : (
+            <div className="access-audio-container">
+              <textarea
+                className="access-textarea"
+                value={content}
+                readOnly
+                placeholder="Speech recognition results will appear here..."
+              />
+
+              {/* <select
+                className="access-voice-select"
+                value={selectedVoice}
+                onChange={handleVoiceChange}
+                disabled={isRecording}
+              >
+                {voices.map((voice) => (
+                  <option key={voice.name} value={voice.lang}>
+                    {`${voice.name} (${voice.lang})`}
+                  </option>
+                ))}
+              </select> */}
+            </div>
           )}
 
           {error && (
@@ -392,7 +459,7 @@ const AIAccessibility = () => {
                   </button>
                 )}
               </>
-            ) : (
+            ) : mode === "video" ? (
               <button
                 className={`access-button ${
                   isProcessing ? "access-button-disabled" : ""
@@ -402,34 +469,28 @@ const AIAccessibility = () => {
               >
                 {isProcessing ? "Processing Video..." : "Analyze Video"}
               </button>
+            ) : (
+              <button
+                className={`access-button ${
+                  isRecording ? "access-button-disabled" : ""
+                }`}
+                onClick={startSpeechRecognition}
+                disabled={isRecording}
+              >
+                {isRecording ? "Listening..." : "Start Speech Recognition"}
+              </button>
             )}
           </div>
 
           <div className="access-footer">
-            <p className="access-status">
-              {isLoading
-                ? "AI is enhancing your text..."
-                : isSpeaking
-                ? "Converting enhanced text to speech..."
-                : isProcessing
-                ? "Processing video..."
-                : "Ready to process"}
-            </p>
+            <button
+              className="access-button access-button-back"
+              onClick={() => setMode(null)}
+            >
+              Back to Mode Selection
+            </button>
           </div>
         </div>
-
-        <button
-          className="access-button mode-switch-button"
-          onClick={() => {
-            setMode(null);
-            setContent("");
-            setVideoFile(null);
-            setVideoUrl(null);
-            setError(null);
-          }}
-        >
-          Switch Mode
-        </button>
       </div>
     </div>
   );
