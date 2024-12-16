@@ -89,7 +89,7 @@ const SearchBar = () => {
     { id: 7, name: "Data Insights", path: "/data-insights-generator" },
     { id: 8, name: "Contextual Learning", path: "/contextual-learning" },
     { id: 9, name: "Content Anonymizer", path: "/content-anonymizer" },
-    { id: 10, name: "Content Rewrite", path: "/content-rewrite" },
+    { id: 10, name: "Vocalscript", path: "/vocal-script" },
   ];
 
   // Handle input change and filter suggestions
