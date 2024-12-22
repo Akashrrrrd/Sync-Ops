@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Translation.css";
 
-const GEMINI_API_KEY = "AIzaSyAR1VHfeajOVi3V8-7H48gcQVmjUMUY3XU";
+const GEMINI_API_KEY = "AIzaSyDGzgLHV1UUVqeka94-ixeuNzxhvG9T-YI";
 
 const Translation = () => {
   // Retrieve initial state from localStorage or use default values

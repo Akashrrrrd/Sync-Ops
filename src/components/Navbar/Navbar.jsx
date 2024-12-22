@@ -7,7 +7,7 @@ import "./AIModal.css";
 import logo from "./../../assets/logo.png";
 
 // Constants
-const API_KEY = "AIzaSyAR1VHfeajOVi3V8-7H48gcQVmjUMUY3XU";
+const API_KEY = "AIzaSyDGzgLHV1UUVqeka94-ixeuNzxhvG9T-YI";
 const STORAGE_KEY = "ai_chat_history";
 
 // Configure marked options
