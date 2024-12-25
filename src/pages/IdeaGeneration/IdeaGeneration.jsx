@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./IdeaGeneration.css";
 
-const GEMINI_API_KEY = "AIzaSyDGzgLHV1UUVqeka94-ixeuNzxhvG9T-YI";
+const GEMINI_API_KEY = "AIzaSyAM0_OZ2s6FBeazWBsn3n4y5I1_SX03HmU";
 
 const IdeaGeneration = () => {
   const [userInput, setUserInput] = useState("");

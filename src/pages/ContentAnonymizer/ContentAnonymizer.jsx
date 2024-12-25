@@ -7,7 +7,7 @@ const ContentAnonymizer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const API_KEY = 'AIzaSyDGzgLHV1UUVqeka94-ixeuNzxhvG9T-YI'; // Replace with your actual API key
+  const API_KEY = 'AIzaSyAM0_OZ2s6FBeazWBsn3n4y5I1_SX03HmU'; // Replace with your actual API key
 
   const anonymizeContent = async () => {
     if (!inputText.trim()) {
