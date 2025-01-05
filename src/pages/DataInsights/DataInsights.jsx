@@ -9,7 +9,7 @@ const DataInsights = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const API_KEY = "AIzaSyB-wGfQXejIjogGCzjppc-rDm8SIFYNvzM"; 
+  const API_KEY = "AIzaSyCKhpM1JaW7YZlOyauvRLkBHobJqCUouwU"; 
 
   const ALLOWED_MIME_TYPES = [
     "image/jpeg",

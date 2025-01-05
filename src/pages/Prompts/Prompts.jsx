@@ -92,7 +92,7 @@ const DynamicPrompts = () => {
   const [loading, setLoading] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
 
-  const API_KEY = "AIzaSyB-wGfQXejIjogGCzjppc-rDm8SIFYNvzM";
+  const API_KEY = "AIzaSyCKhpM1JaW7YZlOyauvRLkBHobJqCUouwU";
   const genAI = new GoogleGenerativeAI(API_KEY);
 
   // Persist user input to localStorage
