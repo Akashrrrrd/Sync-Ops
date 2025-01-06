@@ -291,7 +291,7 @@
 .ai-modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background: transparent;
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
