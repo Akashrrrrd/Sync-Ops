@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./Summarization.css";
 
 // Hardcoded API key (not recommended for production)
-const GEMINI_API_KEY = "AIzaSyCKhpM1JaW7YZlOyauvRLkBHobJqCUouwU";
+const GEMINI_API_KEY = "AIzaSyBSOu6NvyEITf5SK0O-P6qHLH2KHXvP3vE";
 
 const Summarization = () => {
   const [inputText, setInputText] = useState("");
