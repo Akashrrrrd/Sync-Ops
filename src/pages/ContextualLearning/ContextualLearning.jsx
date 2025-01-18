@@ -4,7 +4,7 @@ import DOMPurify from "dompurify";
 import { marked } from "marked";
 import "./ContextualLearning.css";
 
-const API_KEY = "AIzaSyBSOu6NvyEITf5SK0O-P6qHLH2KHXvP3vE";
+const API_KEY = "AIzaSyDZWjtviwdFVpCpHfRcACd4EOgWeJOYuPs";
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 

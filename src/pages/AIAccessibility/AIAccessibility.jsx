@@ -18,7 +18,7 @@ const AIAccessibility = () => {
   const audioChunksRef = useRef([]);
 
   // API Configuration
-  const API_KEY = "AIzaSyBSOu6NvyEITf5SK0O-P6qHLH2KHXvP3vE";
+  const API_KEY = "AIzaSyDZWjtviwdFVpCpHfRcACd4EOgWeJOYuPs";
   const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
   const VISION_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${API_KEY}`;
 
