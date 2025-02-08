@@ -4,7 +4,7 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import "react-toastify/dist/ReactToastify.css";
 
-const GEMINI_API_KEY = "AIzaSyDZWjtviwdFVpCpHfRcACd4EOgWeJOYuPs";
+const GEMINI_API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
 
 // Configure marked options
 marked.setOptions({

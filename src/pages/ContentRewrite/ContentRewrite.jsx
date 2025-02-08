@@ -44,7 +44,7 @@ const ContentRewrite = () => {
     () => localStorage.getItem("lastDisplayMode") || "text"
   );
 
-  const GEMINI_API_KEY = "AIzaSyDZWjtviwdFVpCpHfRcACd4EOgWeJOYuPs";
+  const GEMINI_API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
 
   const tones = [
     "Neutral",

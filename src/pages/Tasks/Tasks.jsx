@@ -4,7 +4,7 @@ import axios from "axios";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
-const REACT_APP_GEMINI_API_KEY = "AIzaSyDZWjtviwdFVpCpHfRcACd4EOgWeJOYuPs";
+const REACT_APP_GEMINI_API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${REACT_APP_GEMINI_API_KEY}`;
 
 // Configure marked options
