@@ -14,8 +14,8 @@
 /* Improved global reset and base styles */
 
 .prompt-forge-container {
-  max-width: 1200px;
-  margin: 40px auto;
+  max-width: 1500px;
+  margin: 0px auto;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 12px 36px var(--box-shadow-color);

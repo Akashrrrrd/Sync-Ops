@@ -1,84 +1,69 @@
-import React, { useState } from 'react';
-import './ContentAnonymizer.css';
+"use client"
+
+import { useState } from "react"
+import "./ContentAnonymizer.css"
 
 const ContentAnonymizer = () => {
-  const [inputText, setInputText] = useState('');
-  const [anonymizedText, setAnonymizedText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [inputText, setInputText] = useState("")
+  const [anonymizedText, setAnonymizedText] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const API_KEY = 'AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g'; // Replace with your actual API key
+  const API_KEY = "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"
 
   const anonymizeContent = async () => {
     if (!inputText.trim()) {
-      setError('Please enter some text to anonymize');
-      return;
+      setError("Please enter some text to anonymize")
+      return
     }
 
-    setIsLoading(true);
-    setError('');
+    setIsLoading(true)
+    setError("")
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Please anonymize the following text by replacing all sensitive information (including names, email addresses, phone numbers, physical addresses, dates, identification numbers, and other personal information) with appropriate descriptive placeholders in square brackets. Maintain the original structure and context of the text. Here's the text to anonymize:\n\n${inputText}`
-              }]
-            }],
-            generationConfig: {
-              temperature: 0.3,
-              topK: 1,
-              topP: 1,
-              maxOutputTokens: 1024,
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert at anonymizing sensitive information while preserving the context and structure of text.",
             },
-            safetySettings: [
-              {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              }
-            ]
-          })
-        }
-      );
+            {
+              role: "user",
+              content: `Please anonymize the following text by replacing all sensitive information (including names, email addresses, phone numbers, physical addresses, dates, identification numbers, and other personal information) with appropriate descriptive placeholders in square brackets. Maintain the original structure and context of the text. Here's the text to anonymize:\n\n${inputText}`,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 1024,
+        }),
+      })
 
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        throw new Error(`API request failed with status ${response.status}`)
       }
 
-      const data = await response.json();
-      
-      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        setAnonymizedText(data.candidates[0].content.parts[0].text);
-        setError('');
+      const data = await response.json()
+
+      if (data.choices && data.choices[0]?.message?.content) {
+        setAnonymizedText(data.choices[0].message.content)
+        setError("")
       } else {
-        throw new Error('Invalid response from API');
+        throw new Error("Invalid response from API")
       }
     } catch (err) {
-      console.error('Anonymization error:', err);
-      setError('Failed to anonymize content. Please try again.');
+      console.error("Anonymization error:", err)
+      setError("Failed to anonymize content. Please try again.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="anonymizer-container">
@@ -87,9 +72,7 @@ const ContentAnonymizer = () => {
           <span className="logo-icon">🔒</span>
           <h1 className="anonymizer-title">AI-Powered Content Anonymizer</h1>
         </div>
-        <p className="anonymizer-description">
-          Protect sensitive information using advanced AI technology
-        </p>
+        <p className="anonymizer-description">Protect sensitive information using advanced AI technology</p>
       </div>
 
       <div className="anonymizer-content">
@@ -111,7 +94,7 @@ Phone: (555) 123-4567"
         </div>
 
         <button
-          className={`anonymizer-button ${isLoading ? 'loading' : ''}`}
+          className={`anonymizer-button ${isLoading ? "loading" : ""}`}
           onClick={anonymizeContent}
           disabled={isLoading}
         >
@@ -119,11 +102,13 @@ Phone: (555) 123-4567"
             <div className="button-content">
               <span className="loading-text">Processing with AI</span>
               <div className="loading-dots">
-                <span>.</span><span>.</span><span>.</span>
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
               </div>
             </div>
           ) : (
-            'Anonymize Content'
+            "Anonymize Content"
           )}
         </button>
 
@@ -138,11 +123,11 @@ Phone: (555) 123-4567"
           <div className="output-section">
             <div className="output-header">
               <h2 className="output-title">Anonymized Content</h2>
-              <button 
+              <button
                 className="copy-button"
                 onClick={() => {
-                  navigator.clipboard.writeText(anonymizedText);
-                  alert('Copied to clipboard!');
+                  navigator.clipboard.writeText(anonymizedText)
+                  alert("Copied to clipboard!")
                 }}
               >
                 <span>📋</span> Copy
@@ -169,7 +154,7 @@ Phone: (555) 123-4567"
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ContentAnonymizer;
+export default ContentAnonymizer

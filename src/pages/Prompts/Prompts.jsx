@@ -1,61 +1,55 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
-import { ToastContainer, toast, Slide } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./Prompts.css";
+"use client"
+
+import { useState, useCallback, useEffect } from "react"
+import axios from "axios"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
+import { ToastContainer, toast, Slide } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import "./Prompts.css"
 
 const RECOMMENDED_PROMPTS = [
   {
     id: 1,
     topic: "Creative Writing",
-    description:
-      "Generate a unique story premise that blends sci-fi and historical fiction",
+    description: "Generate a unique story premise that blends sci-fi and historical fiction",
   },
   {
     id: 2,
     topic: "Business Strategy",
-    description:
-      "Develop an innovative business model for sustainable technology",
+    description: "Develop an innovative business model for sustainable technology",
   },
   {
     id: 3,
     topic: "Product Design",
-    description:
-      "Create a revolutionary product that solves an everyday problem",
+    description: "Create a revolutionary product that solves an everyday problem",
   },
   {
     id: 4,
     topic: "Educational Innovation",
-    description:
-      "Design an immersive learning experience for complex scientific concepts",
+    description: "Design an immersive learning experience for complex scientific concepts",
   },
   {
     id: 5,
     topic: "Social Impact",
-    description:
-      "Craft a comprehensive strategy to address urban sustainability",
+    description: "Craft a comprehensive strategy to address urban sustainability",
   },
   {
     id: 6,
     topic: "Health & Wellness",
-    description:
-      "Propose a cutting-edge solution to improve mental health care access",
+    description: "Propose a cutting-edge solution to improve mental health care access",
   },
   {
     id: 7,
     topic: "Technology",
-    description:
-      "Outline the potential applications of AI in disaster management",
+    description: "Outline the potential applications of AI in disaster management",
   },
   {
     id: 8,
     topic: "Entertainment",
-    description:
-      "Pitch an original concept for a TV series that targets Gen Z audiences",
+    description: "Pitch an original concept for a TV series that targets Gen Z audiences",
   },
-];
+]
 
 const toastConfig = {
   position: "top-right",
@@ -67,58 +61,52 @@ const toastConfig = {
   progress: undefined,
   theme: "light",
   transition: Slide,
-};
+}
 
 const DynamicPrompts = () => {
   // Initialize state from localStorage with fallback
-  const [userInput, setUserInput] = useState(
-    () => localStorage.getItem("currentUserInput") || ""
-  );
+  const [userInput, setUserInput] = useState(() => localStorage.getItem("currentUserInput") || "")
 
-  const [generatedPrompt, setGeneratedPrompt] = useState(
-    () => localStorage.getItem("currentGeneratedPrompt") || ""
-  );
+  const [generatedPrompt, setGeneratedPrompt] = useState(() => localStorage.getItem("currentGeneratedPrompt") || "")
 
   const [promptHistory, setPromptHistory] = useState(() => {
-    const savedHistory = localStorage.getItem("promptHistory");
+    const savedHistory = localStorage.getItem("promptHistory")
     return savedHistory
       ? JSON.parse(savedHistory).map((item) => ({
           ...item,
           timestamp: new Date(item.timestamp),
         }))
-      : [];
-  });
+      : []
+  })
 
-  const [loading, setLoading] = useState(false);
-  const [activeModal, setActiveModal] = useState(null);
+  const [loading, setLoading] = useState(false)
+  const [activeModal, setActiveModal] = useState(null)
 
-  const API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
-  const genAI = new GoogleGenerativeAI(API_KEY);
+  const API_KEY = "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"
 
   // Persist user input to localStorage
   useEffect(() => {
-    localStorage.setItem("currentUserInput", userInput);
-  }, [userInput]);
+    localStorage.setItem("currentUserInput", userInput)
+  }, [userInput])
 
   // Persist generated prompt to localStorage
   useEffect(() => {
-    localStorage.setItem("currentGeneratedPrompt", generatedPrompt);
-  }, [generatedPrompt]);
+    localStorage.setItem("currentGeneratedPrompt", generatedPrompt)
+  }, [generatedPrompt])
 
   // Update localStorage whenever promptHistory changes
   useEffect(() => {
-    localStorage.setItem("promptHistory", JSON.stringify(promptHistory));
-  }, [promptHistory]);
+    localStorage.setItem("promptHistory", JSON.stringify(promptHistory))
+  }, [promptHistory])
 
   const generatePrompt = useCallback(async () => {
     if (!userInput.trim()) {
-      toast.info("Please enter a topic to spark AI creativity", toastConfig);
-      return;
+      toast.info("Please enter a topic to spark AI creativity", toastConfig)
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       const promptTemplate = `
 Professional Prompt Engineering Framework:
 - Domain: "${userInput}"
@@ -128,85 +116,109 @@ Professional Prompt Engineering Framework:
   2. Encourage innovative thinking
   3. Provide clear, actionable guidance
   4. Stimulate comprehensive exploration
-`;
+`
 
-      const result = await model.generateContent(promptTemplate);
-      const response = await result.response;
-      const text = response.text();
+      const response = await axios.post(
+        "https://api.perplexity.ai/chat/completions",
+        {
+          model: "sonar",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert prompt engineer who creates sophisticated, nuanced prompts that inspire creativity and deep thinking.",
+            },
+            {
+              role: "user",
+              content: promptTemplate,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${API_KEY}`,
+          },
+        },
+      )
 
-      const sanitizedText = DOMPurify.sanitize(marked(text));
-      setGeneratedPrompt(sanitizedText);
+      const text = response.data.choices[0].message.content
+
+      const sanitizedText = DOMPurify.sanitize(marked(text))
+      setGeneratedPrompt(sanitizedText)
 
       const newPromptItem = {
         id: Date.now(),
         topic: userInput,
         prompt: sanitizedText,
         timestamp: new Date(),
-      };
+      }
 
       // Limit history to 10 most recent items
       setPromptHistory((prev) => {
-        const updatedHistory = [newPromptItem, ...prev.slice(0, 9)];
-        return updatedHistory;
-      });
+        const updatedHistory = [newPromptItem, ...prev.slice(0, 9)]
+        return updatedHistory
+      })
 
-      toast.success("Prompt Generated Successfully!", toastConfig);
+      toast.success("Prompt Generated Successfully!", toastConfig)
     } catch (error) {
-      console.error("Prompt Generation Error:", error);
+      console.error("Prompt Generation Error:", error)
       toast.error("AI Creativity Temporarily Unavailable", {
         ...toastConfig,
         autoClose: 7500,
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [userInput, genAI]);
+  }, [userInput, API_KEY])
 
   const copyToClipboard = useCallback((text) => {
-    const plainText = text.replace(/<[^>]*>/g, "");
+    const plainText = text.replace(/<[^>]*>/g, "")
     navigator.clipboard
       .writeText(plainText)
       .then(() => toast.success("Prompt Copied to Clipboard", toastConfig))
-      .catch(() => toast.error("Clipboard Copy Failed", toastConfig));
-  }, []);
+      .catch(() => toast.error("Clipboard Copy Failed", toastConfig))
+  }, [])
 
   const resetFields = useCallback(() => {
-    setUserInput("");
-    setGeneratedPrompt("");
-    localStorage.removeItem("currentUserInput");
-    localStorage.removeItem("currentGeneratedPrompt");
-    toast.info("Fields Reset", toastConfig);
-  }, []);
+    setUserInput("")
+    setGeneratedPrompt("")
+    localStorage.removeItem("currentUserInput")
+    localStorage.removeItem("currentGeneratedPrompt")
+    toast.info("Fields Reset", toastConfig)
+  }, [])
 
   const clearHistory = useCallback(() => {
-    setPromptHistory([]);
-    localStorage.removeItem("promptHistory");
-    toast.info("Prompt History Cleared", toastConfig);
-  }, []);
+    setPromptHistory([])
+    localStorage.removeItem("promptHistory")
+    toast.info("Prompt History Cleared", toastConfig)
+  }, [])
 
   const openHistoryModal = useCallback((prompt) => {
-    setActiveModal(prompt);
-  }, []);
+    setActiveModal(prompt)
+  }, [])
 
   const closeModal = useCallback(() => {
-    setActiveModal(null);
-  }, []);
+    setActiveModal(null)
+  }, [])
 
   const selectRecommendedPrompt = useCallback((prompt) => {
-    setUserInput(prompt.description);
-    toast.info(`Selected: ${prompt.topic}`, toastConfig);
-  }, []);
+    setUserInput(prompt.description)
+    toast.info(`Selected: ${prompt.topic}`, toastConfig)
+  }, [])
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Enter" && userInput.trim()) {
-        generatePrompt();
+        generatePrompt()
       }
-    };
+    }
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [userInput, generatePrompt]);
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [userInput, generatePrompt])
 
   return (
     <div className="prompt-forge-container">
@@ -214,9 +226,7 @@ Professional Prompt Engineering Framework:
         <h1>
           Prompt <span className="gradient-text">Forge AI</span>
         </h1>
-        <p>
-          Elevate Your Creative Potential Through Intelligent Prompt Engineering
-        </p>
+        <p>Elevate Your Creative Potential Through Intelligent Prompt Engineering</p>
       </div>
 
       <div className="prompt-input-section">
@@ -229,11 +239,7 @@ Professional Prompt Engineering Framework:
             disabled={loading}
             className="prompt-input"
           />
-          <button
-            onClick={generatePrompt}
-            disabled={loading}
-            className="generate-btn"
-          >
+          <button onClick={generatePrompt} disabled={loading} className="generate-btn">
             {loading ? "Generating..." : "Spark Ideas"}
           </button>
           <button onClick={resetFields} className="reset-btn">
@@ -247,11 +253,7 @@ Professional Prompt Engineering Framework:
         <h3>Recommended Prompts</h3>
         <div className="recommended-prompts-grid">
           {RECOMMENDED_PROMPTS.map((prompt) => (
-            <div
-              key={prompt.id}
-              className="recommended-prompt-card"
-              onClick={() => selectRecommendedPrompt(prompt)}
-            >
+            <div key={prompt.id} className="recommended-prompt-card" onClick={() => selectRecommendedPrompt(prompt)}>
               <h4>{prompt.topic}</h4>
               <p>{prompt.description}</p>
             </div>
@@ -263,17 +265,11 @@ Professional Prompt Engineering Framework:
         <div className="generated-prompt-section">
           <div className="generated-prompt-header">
             <h2>Generated Prompt</h2>
-            <button
-              onClick={() => copyToClipboard(generatedPrompt)}
-              className="copy-btn"
-            >
+            <button onClick={() => copyToClipboard(generatedPrompt)} className="copy-btn">
               Copy Prompt
             </button>
           </div>
-          <div
-            className="generated-prompt-content"
-            dangerouslySetInnerHTML={{ __html: generatedPrompt }}
-          />
+          <div className="generated-prompt-content" dangerouslySetInnerHTML={{ __html: generatedPrompt }} />
         </div>
       )}
 
@@ -289,13 +285,8 @@ Professional Prompt Engineering Framework:
             {promptHistory.map((item) => (
               <div key={item.id} className="history-item">
                 <span className="history-topic">{item.topic}</span>
-                <span className="history-timestamp">
-                  {item.timestamp.toLocaleString()}
-                </span>
-                <button
-                  onClick={() => openHistoryModal(item)}
-                  className="view-history-btn"
-                >
+                <span className="history-timestamp">{item.timestamp.toLocaleString()}</span>
+                <button onClick={() => openHistoryModal(item)} className="view-history-btn">
                   View
                 </button>
               </div>
@@ -313,15 +304,9 @@ Professional Prompt Engineering Framework:
                 ×
               </button>
             </div>
-            <div
-              className="modal-body"
-              dangerouslySetInnerHTML={{ __html: activeModal.prompt }}
-            />
+            <div className="modal-body" dangerouslySetInnerHTML={{ __html: activeModal.prompt }} />
             <div className="modal-footer">
-              <button
-                onClick={() => copyToClipboard(activeModal.prompt)}
-                className="modal-copy-btn"
-              >
+              <button onClick={() => copyToClipboard(activeModal.prompt)} className="modal-copy-btn">
                 Copy Prompt
               </button>
               <button onClick={closeModal} className="modal-close-action-btn">
@@ -333,7 +318,7 @@ Professional Prompt Engineering Framework:
       )}
       <ToastContainer />
     </div>
-  );
-};
+  )
+}
 
-export default DynamicPrompts;
+export default DynamicPrompts

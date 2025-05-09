@@ -1,15 +1,19 @@
-import React, { useState } from "react";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
-import "./DataInsights.css";
+"use client"
+
+import { useState } from "react"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
+import "./DataInsights.css"
 
 const DataInsights = () => {
-  const [dataFile, setDataFile] = useState(null);
-  const [insights, setInsights] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [dataFile, setDataFile] = useState(null)
+  const [fileContent, setFileContent] = useState(null)
+  const [filePreview, setFilePreview] = useState(null)
+  const [insights, setInsights] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g"; 
+  const API_KEY = "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"
 
   const ALLOWED_MIME_TYPES = [
     "image/jpeg",
@@ -19,118 +23,143 @@ const DataInsights = () => {
     "text/plain",
     "text/csv",
     "application/pdf",
-  ];
+  ]
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
     if (file) {
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-        setError(
-          `Unsupported file type: ${file.type}. Please upload an image, PDF, or text file.`
-        );
-        return;
+        setError(`Unsupported file type: ${file.type}. Please upload an image, PDF, or text file.`)
+        return
       }
-      setDataFile(file);
-      setError(null);
+      setDataFile(file)
+      processFile(file)
+      setError(null)
     }
-  };
+  }
 
   const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
+    e.preventDefault()
+    e.stopPropagation()
+  }
 
   const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const file = e.dataTransfer.files[0];
+    e.preventDefault()
+    e.stopPropagation()
+    const file = e.dataTransfer.files[0]
     if (file) {
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-        setError(
-          `Unsupported file type: ${file.type}. Please upload an image, PDF, or text file.`
-        );
-        return;
+        setError(`Unsupported file type: ${file.type}. Please upload an image, PDF, or text file.`)
+        return
       }
-      setDataFile(file);
-      setError(null);
+      setDataFile(file)
+      processFile(file)
+      setError(null)
     }
-  };
+  }
 
-  const analyzeFileWithGemini = async () => {
+  const processFile = async (file) => {
+    // For text files, read the content directly
+    if (file.type.startsWith("text/")) {
+      const text = await readFileAsText(file)
+      setFileContent(text)
+      setFilePreview(null)
+    }
+    // For images, create a preview URL and describe the image
+    else if (file.type.startsWith("image/")) {
+      const previewUrl = URL.createObjectURL(file)
+      setFilePreview(previewUrl)
+      setFileContent(`[This is an image file: ${file.name}, type: ${file.type}, size: ${formatFileSize(file.size)}]`)
+    }
+    // For PDFs, just note it's a PDF (we can't easily extract text without additional libraries)
+    else if (file.type === "application/pdf") {
+      setFilePreview(null)
+      setFileContent(`[This is a PDF file: ${file.name}, size: ${formatFileSize(file.size)}]`)
+    }
+  }
+
+  const readFileAsText = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (event) => resolve(event.target.result)
+      reader.onerror = (error) => reject(error)
+      reader.readAsText(file)
+    })
+  }
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + " bytes"
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB"
+    else return (bytes / 1048576).toFixed(1) + " MB"
+  }
+
+  const analyzeFileWithPerplexity = async () => {
     if (!dataFile) {
-      setError("Please upload a file to analyze.");
-      return;
+      setError("Please upload a file to analyze.")
+      return
     }
 
     if (!API_KEY) {
-      setError("Gemini API key is missing. Please provide a valid key.");
-      return;
+      setError("Perplexity API key is missing. Please provide a valid key.")
+      return
     }
 
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
-      const base64Data = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(dataFile);
-      });
+      // Create a description of the file for the API
+      const fileDescription = `File name: ${dataFile.name}
+File type: ${dataFile.type}
+File size: ${formatFileSize(dataFile.size)}
+${fileContent ? `\nFile content: ${fileContent.substring(0, 15000)}` : ""}`
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: "Provide a comprehensive and detailed analysis of this file. Use clear, structured Markdown formatting.",
-                  },
-                  {
-                    inlineData: {
-                      mimeType: dataFile.type,
-                      data: base64Data,
-                    },
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              maxOutputTokens: 2048,
-              temperature: 0.4,
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert data analyst that provides comprehensive analysis of files. Use clear, structured Markdown formatting in your responses.",
             },
-          }),
-        }
-      );
+            {
+              role: "user",
+              content: `Provide a comprehensive and detailed analysis of this file. Use clear, structured Markdown formatting.\n\n${fileDescription}`,
+            },
+          ],
+          temperature: 0.4,
+          max_tokens: 2048,
+        }),
+      })
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API request failed: ${errorText}`);
+        const errorText = await response.text()
+        throw new Error(`API request failed: ${errorText}`)
       }
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.error) {
-        throw new Error(data.error.message || "API request failed");
+        throw new Error(data.error.message || "API request failed")
       }
 
-      const geminiResponse = data.candidates[0].content.parts[0].text;
+      const perplexityResponse = data.choices[0].message.content
 
-      const sanitizedHTML = DOMPurify.sanitize(marked(geminiResponse));
-      setInsights({ markdown: sanitizedHTML });
-      setIsLoading(false);
+      const sanitizedHTML = DOMPurify.sanitize(marked(perplexityResponse))
+      setInsights({ markdown: sanitizedHTML })
+      setIsLoading(false)
     } catch (error) {
-      console.error("Analysis error:", error);
-      setError(`Failed to analyze file: ${error.message}`);
-      setIsLoading(false);
+      console.error("Analysis error:", error)
+      setError(`Failed to analyze file: ${error.message}`)
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="data-data-insights">
@@ -158,11 +187,7 @@ const DataInsights = () => {
           <polyline points="17 8 12 3 7 8" />
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
-        <p>
-          {dataFile
-            ? dataFile.name
-            : "Drag and drop supported files here or click to browse"}
-        </p>
+        <p>{dataFile ? dataFile.name : "Drag and drop supported files here or click to browse"}</p>
         <input
           id="file-upload"
           type="file"
@@ -172,11 +197,15 @@ const DataInsights = () => {
         />
       </div>
 
+      {filePreview && (
+        <div className="data-file-preview">
+          <img src={filePreview || "/placeholder.svg"} alt="File preview" className="data-preview-image" />
+        </div>
+      )}
+
       <button
-        className={`data-generate-button ${isLoading ? "loading" : ""} ${
-          !dataFile ? "disabled" : ""
-        }`}
-        onClick={analyzeFileWithGemini}
+        className={`data-generate-button ${isLoading ? "loading" : ""} ${!dataFile ? "disabled" : ""}`}
+        onClick={analyzeFileWithPerplexity}
         disabled={isLoading || !dataFile}
       >
         {isLoading ? "Analyzing File..." : "Analyze File"}
@@ -193,7 +222,7 @@ const DataInsights = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default DataInsights;
+export default DataInsights

@@ -1,34 +1,36 @@
-import React, { useState, useEffect, useRef } from "react";
-import "./ContentGeneration.css";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
-import "react-toastify/dist/ReactToastify.css";
+"use client"
 
-const GEMINI_API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
+import { useState, useEffect, useRef } from "react"
+import "./ContentGeneration.css"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
+import "react-toastify/dist/ReactToastify.css"
+
+const PERPLEXITY_API_KEY = "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"
 
 // Configure marked options
 marked.setOptions({
   breaks: true,
   gfm: true,
-});
+})
 
 const ContentGeneration = () => {
-  const [apiKey, setApiKey] = useState("");
-  const [inputPrompt, setInputPrompt] = useState("");
-  const [generatedContent, setGeneratedContent] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [copySuccess, setCopySuccess] = useState(false);
-  const [wordCount, setWordCount] = useState(0);
-  const [charCount, setCharCount] = useState(0);
-  const [contentHistory, setContentHistory] = useState([]);
-  const [selectedTone, setSelectedTone] = useState("professional");
-  const [selectedLength, setSelectedLength] = useState("medium");
-  const [saveStatus, setSaveStatus] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
-  const [markdownMode, setMarkdownMode] = useState(true);
-  const textareaRef = useRef(null);
+  const [apiKey, setApiKey] = useState("")
+  const [inputPrompt, setInputPrompt] = useState("")
+  const [generatedContent, setGeneratedContent] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [wordCount, setWordCount] = useState(0)
+  const [charCount, setCharCount] = useState(0)
+  const [contentHistory, setContentHistory] = useState([])
+  const [selectedTone, setSelectedTone] = useState("professional")
+  const [selectedLength, setSelectedLength] = useState("medium")
+  const [saveStatus, setSaveStatus] = useState("")
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false)
+  const [markdownMode, setMarkdownMode] = useState(true)
+  const textareaRef = useRef(null)
 
   const toneOptions = [
     { value: "professional", label: "Professional" },
@@ -36,14 +38,14 @@ const ContentGeneration = () => {
     { value: "friendly", label: "Friendly" },
     { value: "formal", label: "Formal" },
     { value: "technical", label: "Technical" },
-  ];
+  ]
 
   const lengthOptions = [
     { value: "short", label: "Short (100 words)", maxTokens: 200 },
     { value: "medium", label: "Medium (300 words)", maxTokens: 400 },
     { value: "long", label: "Long (500 words)", maxTokens: 800 },
     { value: "custom", label: "Custom Length", maxTokens: 1000 },
-  ];
+  ]
 
   const promptTemplates = [
     "Write a blog post about technology trends in 2024.",
@@ -51,146 +53,138 @@ const ContentGeneration = () => {
     "Draft an email announcing a company event.",
     "Generate a product description for a fitness gadget.",
     "Compose a business proposal about renewable energy.",
-  ];
+  ]
 
   // Comprehensive initialization from localStorage
   useEffect(() => {
     // Restore API Key
-    const savedApiKey = localStorage.getItem("geminiApiKey");
+    const savedApiKey = localStorage.getItem("perplexityApiKey")
     if (savedApiKey) {
-      setApiKey(savedApiKey);
+      setApiKey(savedApiKey)
     }
 
     // Restore Content History
-    const savedHistory = localStorage.getItem("contentHistory");
+    const savedHistory = localStorage.getItem("contentHistory")
     if (savedHistory) {
-      setContentHistory(JSON.parse(savedHistory));
+      setContentHistory(JSON.parse(savedHistory))
     }
 
     // Restore Last Used Prompt
-    const savedPrompt = localStorage.getItem("lastUsedPrompt");
+    const savedPrompt = localStorage.getItem("lastUsedPrompt")
     if (savedPrompt) {
-      setInputPrompt(savedPrompt);
+      setInputPrompt(savedPrompt)
     }
 
     // Restore Last Used Tone
-    const savedTone = localStorage.getItem("lastUsedTone");
+    const savedTone = localStorage.getItem("lastUsedTone")
     if (savedTone) {
-      setSelectedTone(savedTone);
+      setSelectedTone(savedTone)
     }
 
     // Restore Last Used Length
-    const savedLength = localStorage.getItem("lastUsedLength");
+    const savedLength = localStorage.getItem("lastUsedLength")
     if (savedLength) {
-      setSelectedLength(savedLength);
+      setSelectedLength(savedLength)
     }
 
     // Restore Generated Content
-    const savedContent = localStorage.getItem("lastGeneratedContent");
+    const savedContent = localStorage.getItem("lastGeneratedContent")
     if (savedContent) {
-      setGeneratedContent(savedContent);
+      setGeneratedContent(savedContent)
     }
-  }, []);
+  }, [])
 
   // Update localStorage when key states change
   useEffect(() => {
     if (inputPrompt) {
-      localStorage.setItem("lastUsedPrompt", inputPrompt);
+      localStorage.setItem("lastUsedPrompt", inputPrompt)
     }
-  }, [inputPrompt]);
+  }, [inputPrompt])
 
   useEffect(() => {
-    localStorage.setItem("lastUsedTone", selectedTone);
-  }, [selectedTone]);
+    localStorage.setItem("lastUsedTone", selectedTone)
+  }, [selectedTone])
 
   useEffect(() => {
-    localStorage.setItem("lastUsedLength", selectedLength);
-  }, [selectedLength]);
+    localStorage.setItem("lastUsedLength", selectedLength)
+  }, [selectedLength])
 
   useEffect(() => {
     if (generatedContent) {
-      localStorage.setItem("lastGeneratedContent", generatedContent);
+      localStorage.setItem("lastGeneratedContent", generatedContent)
     }
-  }, [generatedContent]);
+  }, [generatedContent])
 
   // Word and character count tracking
   useEffect(() => {
     if (inputPrompt) {
-      const words = inputPrompt.trim().split(/\s+/).length;
-      const chars = inputPrompt.length;
-      setWordCount(words);
-      setCharCount(chars);
+      const words = inputPrompt.trim().split(/\s+/).length
+      const chars = inputPrompt.length
+      setWordCount(words)
+      setCharCount(chars)
     } else {
-      setWordCount(0);
-      setCharCount(0);
+      setWordCount(0)
+      setCharCount(0)
     }
-  }, [inputPrompt]);
+  }, [inputPrompt])
 
   // Content Generation Function
   const handleGenerateContent = async () => {
-    if (!GEMINI_API_KEY) {
-      setError("Gemini API key is missing.");
-      return;
+    if (!PERPLEXITY_API_KEY) {
+      setError("Perplexity API key is missing.")
+      return
     }
 
     if (!inputPrompt.trim()) {
-      setError("Please enter a prompt to generate content.");
-      return;
+      setError("Please enter a prompt to generate content.")
+      return
     }
 
-    setError("");
-    setLoading(true);
-    setGeneratedContent("");
-    setCopySuccess(false);
+    setError("")
+    setLoading(true)
+    setGeneratedContent("")
+    setCopySuccess(false)
 
-    const selectedLengthConfig = lengthOptions.find(
-      (l) => l.value === selectedLength
-    );
+    const selectedLengthConfig = lengthOptions.find((l) => l.value === selectedLength)
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `Generate content with these specifications:
-              - Tone: ${selectedTone}
-              - Approximate Length: ${selectedLength} (around ${
-                      selectedLengthConfig.maxTokens
-                    } words)
-              - Format: ${
-                markdownMode ? "Use Markdown formatting" : "Plain text"
-              }
-              - Be clear, engaging, and directly address this prompt: ${inputPrompt}`,
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              maxOutputTokens: selectedLengthConfig.maxTokens,
-              temperature: 0.7,
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [
+            {
+              role: "system",
+              content: `You are an expert content creator that generates high-quality content in the specified tone and length. Always format your response appropriately.`,
             },
-          }),
-        }
-      );
+            {
+              role: "user",
+              content: `Generate content with these specifications:
+              - Tone: ${selectedTone}
+              - Approximate Length: ${selectedLength} (around ${selectedLengthConfig.maxTokens} words)
+              - Format: ${markdownMode ? "Use Markdown formatting" : "Plain text"}
+              - Be clear, engaging, and directly address this prompt: ${inputPrompt}`,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: selectedLengthConfig.maxTokens,
+        }),
+      })
 
       if (!response.ok) {
-        const errorResponse = await response.json();
-        throw new Error(errorResponse.error?.message || "API request failed");
+        const errorResponse = await response.json()
+        throw new Error(errorResponse.error?.message || "API request failed")
       }
 
-      const data = await response.json();
-      const generatedText = data.candidates[0].content.parts[0].text.trim();
+      const data = await response.json()
+      const generatedText = data.choices[0].message.content.trim()
 
-      setGeneratedContent(generatedText);
-      localStorage.setItem("lastGeneratedContent", generatedText);
+      setGeneratedContent(generatedText)
+      localStorage.setItem("lastGeneratedContent", generatedText)
 
       // Add to history
       const newHistoryItem = {
@@ -200,98 +194,95 @@ const ContentGeneration = () => {
         timestamp: new Date().toISOString(),
         tone: selectedTone,
         length: selectedLength,
-      };
+      }
 
-      const updatedHistory = [newHistoryItem, ...contentHistory].slice(0, 10);
-      setContentHistory(updatedHistory);
-      localStorage.setItem("contentHistory", JSON.stringify(updatedHistory));
+      const updatedHistory = [newHistoryItem, ...contentHistory].slice(0, 10)
+      setContentHistory(updatedHistory)
+      localStorage.setItem("contentHistory", JSON.stringify(updatedHistory))
     } catch (err) {
-      setError(`Content generation failed: ${err.message}`);
-      console.error("Generation Error:", err);
+      setError(`Content generation failed: ${err.message}`)
+      console.error("Generation Error:", err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Input Change Handler
   const handleInputChange = (e) => {
-    setInputPrompt(e.target.value);
-    setError("");
-    autoResizeTextarea();
-  };
+    setInputPrompt(e.target.value)
+    setError("")
+    autoResizeTextarea()
+  }
 
   // Textarea Auto-resize
   const autoResizeTextarea = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height =
-        textareaRef.current.scrollHeight + "px";
+      textareaRef.current.style.height = "auto"
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + "px"
     }
-  };
+  }
 
   // Copy Generated Content
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(generatedContent);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      await navigator.clipboard.writeText(generatedContent)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
     } catch (err) {
-      console.error("Failed to copy text:", err);
-      setError("Failed to copy to clipboard");
+      console.error("Failed to copy text:", err)
+      setError("Failed to copy to clipboard")
     }
-  };
+  }
 
   // Save Generated Content
   const handleSave = () => {
-    if (!generatedContent) return;
+    if (!generatedContent) return
 
-    const blob = new Blob([generatedContent], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `generated-content-${Date.now()}.${
-      markdownMode ? "md" : "txt"
-    }`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const blob = new Blob([generatedContent], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `generated-content-${Date.now()}.${markdownMode ? "md" : "txt"}`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
 
-    setSaveStatus("Content saved successfully!");
-    setTimeout(() => setSaveStatus(""), 2000);
-  };
+    setSaveStatus("Content saved successfully!")
+    setTimeout(() => setSaveStatus(""), 2000)
+  }
 
   // Template Selection
   const handleTemplateSelect = (template) => {
-    setInputPrompt(template);
-    textareaRef.current?.focus();
-  };
+    setInputPrompt(template)
+    textareaRef.current?.focus()
+  }
 
   // API Key Saving
   const handleSaveApiKey = () => {
     if (apiKey) {
-      localStorage.setItem("geminiApiKey", apiKey);
-      setShowApiKeyInput(false);
+      localStorage.setItem("perplexityApiKey", apiKey)
+      setShowApiKeyInput(false)
     }
-  };
+  }
 
   // Clear Generation History
   const clearHistory = () => {
-    setContentHistory([]);
-    localStorage.removeItem("contentHistory");
-    localStorage.removeItem("lastGeneratedContent");
-    localStorage.removeItem("lastUsedPrompt");
-    setGeneratedContent("");
-    setInputPrompt("");
-  };
+    setContentHistory([])
+    localStorage.removeItem("contentHistory")
+    localStorage.removeItem("lastGeneratedContent")
+    localStorage.removeItem("lastUsedPrompt")
+    setGeneratedContent("")
+    setInputPrompt("")
+  }
 
   // Markdown Rendering
   const renderContent = (content) => {
-    if (!content) return "";
+    if (!content) return ""
 
     if (markdownMode) {
       // Convert markdown to HTML and sanitize
-      const rawHtml = marked(content);
+      const rawHtml = marked(content)
       const sanitizedHtml = DOMPurify.sanitize(rawHtml, {
         USE_PROFILES: { html: true },
         ALLOWED_TAGS: [
@@ -313,12 +304,12 @@ const ContentGeneration = () => {
           "a",
         ],
         ALLOWED_ATTR: ["href", "target", "rel"],
-      });
-      return <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />;
+      })
+      return <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
     }
 
-    return <pre>{content}</pre>;
-  };
+    return <pre>{content}</pre>
+  }
 
   return (
     <div className="coge-content-generator">
@@ -366,9 +357,7 @@ const ContentGeneration = () => {
       </div>
 
       <div className="coge-content-generator__templates">
-        <h3 className="coge-content-generator__templates-title">
-          Quick Templates
-        </h3>
+        <h3 className="coge-content-generator__templates-title">Quick Templates</h3>
         <div className="coge-content-generator__templates-grid">
           {promptTemplates.map((template, index) => (
             <button
@@ -401,9 +390,7 @@ const ContentGeneration = () => {
         />
 
         <button
-          className={`coge-content-generator__button ${
-            loading ? "coge-content-generator__button--loading" : ""
-          }`}
+          className={`coge-content-generator__button ${loading ? "coge-content-generator__button--loading" : ""}`}
           onClick={handleGenerateContent}
           disabled={loading}
         >
@@ -427,85 +414,53 @@ const ContentGeneration = () => {
       {generatedContent && (
         <div className="coge-content-generator__output">
           <div className="coge-content-generator__output-header">
-            <h2 className="coge-content-generator__output-title">
-              Generated Content
-            </h2>
+            <h2 className="coge-content-generator__output-title">Generated Content</h2>
             <div className="coge-content-generator__output-actions">
               <button
                 className={`coge-content-generator__action-button ${
-                  copySuccess
-                    ? "coge-content-generator__action-button--success"
-                    : ""
+                  copySuccess ? "coge-content-generator__action-button--success" : ""
                 }`}
                 onClick={handleCopy}
               >
                 {copySuccess ? "Copied!" : "Copy"}
               </button>
-              <button
-                className="coge-content-generator__action-button"
-                onClick={handleSave}
-              >
+              <button className="coge-content-generator__action-button" onClick={handleSave}>
                 Save as File
               </button>
             </div>
           </div>
-          <div className="coge-content-generator__output-content">
-            {renderContent(generatedContent)}
-          </div>
-          {saveStatus && (
-            <div className="coge-content-generator__save-status">
-              {saveStatus}
-            </div>
-          )}
+          <div className="coge-content-generator__output-content">{renderContent(generatedContent)}</div>
+          {saveStatus && <div className="coge-content-generator__save-status">{saveStatus}</div>}
         </div>
       )}
 
       {contentHistory.length > 0 && (
         <div
-          className={`coge-content-generator__history ${
-            isExpanded ? "coge-content-generator__history--expanded" : ""
-          }`}
+          className={`coge-content-generator__history ${isExpanded ? "coge-content-generator__history--expanded" : ""}`}
         >
           <div className="coge-content-generator__history-header">
-            <h3 className="coge-content-generator__history-title">
-              Generation History
-            </h3>
+            <h3 className="coge-content-generator__history-title">Generation History</h3>
             <div className="coge-content-generator__history-actions">
-              <button
-                className="coge-content-generator__history-toggle"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
+              <button className="coge-content-generator__history-toggle" onClick={() => setIsExpanded(!isExpanded)}>
                 {isExpanded ? "Show Less" : "Show More"}
               </button>
-              <button
-                className="coge-content-generator__history-clear"
-                onClick={clearHistory}
-              >
+              <button className="coge-content-generator__history-clear" onClick={clearHistory}>
                 Clear History
               </button>
             </div>
           </div>
           <div className="coge-content-generator__history-list">
             {contentHistory.map((item) => (
-              <div
-                key={item.id}
-                className="coge-content-generator__history-item"
-              >
+              <div key={item.id} className="coge-content-generator__history-item">
                 <div className="coge-content-generator__history-item-header">
-                  <span className="coge-content-generator__history-item-prompt">
-                    {item.prompt.substring(0, 50)}...
-                  </span>
+                  <span className="coge-content-generator__history-item-prompt">{item.prompt.substring(0, 50)}...</span>
                   <span className="coge-content-generator__history-item-date">
                     {new Date(item.timestamp).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="coge-content-generator__history-item-tags">
-                  <span className="coge-content-generator__history-item-tag">
-                    {item.tone}
-                  </span>
-                  <span className="coge-content-generator__history-item-tag">
-                    {item.length}
-                  </span>
+                  <span className="coge-content-generator__history-item-tag">{item.tone}</span>
+                  <span className="coge-content-generator__history-item-tag">{item.length}</span>
                 </div>
               </div>
             ))}
@@ -513,7 +468,7 @@ const ContentGeneration = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ContentGeneration;
+export default ContentGeneration

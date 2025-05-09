@@ -20,7 +20,7 @@
 .chatroom-container {
   display: flex;
   height: 88vh;
-  max-width: 1400px;
+  max-width: 1500px;
   margin: 0 auto;
   padding: 1.5rem;
   gap: 1.5rem;

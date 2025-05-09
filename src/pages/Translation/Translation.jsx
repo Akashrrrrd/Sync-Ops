@@ -1,67 +1,56 @@
-import React, { useState, useEffect } from "react";
-import "./Translation.css";
+"use client"
 
-const GEMINI_API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
+import { useState, useEffect } from "react"
+import "./Translation.css"
+
+const PERPLEXITY_API_KEY = "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"
 
 const Translation = () => {
   // Retrieve initial state from localStorage or use default values
-  const [inputText, setInputText] = useState(
-    () => localStorage.getItem("inputText") || ""
-  );
-  const [translatedText, setTranslatedText] = useState(
-    () => localStorage.getItem("translatedText") || ""
-  );
-  const [sourceLanguage, setSourceLanguage] = useState(
-    () => localStorage.getItem("sourceLanguage") || "english"
-  );
-  const [targetLanguage, setTargetLanguage] = useState(
-    () => localStorage.getItem("targetLanguage") || "spanish"
-  );
-  const [loading, setLoading] = useState(false);
+  const [inputText, setInputText] = useState(() => localStorage.getItem("inputText") || "")
+  const [translatedText, setTranslatedText] = useState(() => localStorage.getItem("translatedText") || "")
+  const [sourceLanguage, setSourceLanguage] = useState(() => localStorage.getItem("sourceLanguage") || "english")
+  const [targetLanguage, setTargetLanguage] = useState(() => localStorage.getItem("targetLanguage") || "spanish")
+  const [loading, setLoading] = useState(false)
   const [translationHistory, setTranslationHistory] = useState(() => {
-    const savedHistory = localStorage.getItem("translationHistory");
-    return savedHistory ? JSON.parse(savedHistory) : [];
-  });
-  const [confidence, setConfidence] = useState(
-    () => parseInt(localStorage.getItem("confidence")) || 0
-  );
+    const savedHistory = localStorage.getItem("translationHistory")
+    return savedHistory ? JSON.parse(savedHistory) : []
+  })
+  const [confidence, setConfidence] = useState(() => Number.parseInt(localStorage.getItem("confidence")) || 0)
   const [suggestions, setSuggestions] = useState(() => {
-    const savedSuggestions = localStorage.getItem("suggestions");
-    return savedSuggestions ? JSON.parse(savedSuggestions) : [];
-  });
-  const [error, setError] = useState(null);
+    const savedSuggestions = localStorage.getItem("suggestions")
+    return savedSuggestions ? JSON.parse(savedSuggestions) : []
+  })
+  const [error, setError] = useState(null)
 
   // Update localStorage whenever state changes
   useEffect(() => {
-    localStorage.setItem("inputText", inputText);
-  }, [inputText]);
+    localStorage.setItem("inputText", inputText)
+  }, [inputText])
 
   useEffect(() => {
-    localStorage.setItem("translatedText", translatedText);
-  }, [translatedText]);
+    localStorage.setItem("translatedText", translatedText)
+  }, [translatedText])
 
   useEffect(() => {
-    localStorage.setItem("sourceLanguage", sourceLanguage);
-  }, [sourceLanguage]);
+    localStorage.setItem("sourceLanguage", sourceLanguage)
+  }, [sourceLanguage])
 
   useEffect(() => {
-    localStorage.setItem("targetLanguage", targetLanguage);
-  }, [targetLanguage]);
+    localStorage.setItem("targetLanguage", targetLanguage)
+  }, [targetLanguage])
 
   useEffect(() => {
-    localStorage.setItem(
-      "translationHistory",
-      JSON.stringify(translationHistory)
-    );
-  }, [translationHistory]);
+    localStorage.setItem("translationHistory", JSON.stringify(translationHistory))
+  }, [translationHistory])
 
   useEffect(() => {
-    localStorage.setItem("confidence", confidence.toString());
-  }, [confidence]);
+    localStorage.setItem("confidence", confidence.toString())
+  }, [confidence])
 
   useEffect(() => {
-    localStorage.setItem("suggestions", JSON.stringify(suggestions));
-  }, [suggestions]);
+    localStorage.setItem("suggestions", JSON.stringify(suggestions))
+  }, [suggestions])
 
   const languages = [
     "English",
@@ -76,38 +65,39 @@ const Translation = () => {
     "Russian",
     "Arabic",
     "Hindi",
-  ];
+  ]
 
   const handleTranslate = async () => {
-    setError(null);
+    setError(null)
 
     if (!inputText.trim()) {
-      showNotification("Please provide text to translate.", "error");
-      return;
+      showNotification("Please provide text to translate.", "error")
+      return
     }
     if (sourceLanguage === targetLanguage) {
-      showNotification(
-        "Source and target languages cannot be the same.",
-        "error"
-      );
-      return;
+      showNotification("Source and target languages cannot be the same.", "error")
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: `Translate the following text from ${sourceLanguage} to ${targetLanguage}:
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a professional translator. Provide accurate translations with confidence scores and alternatives.",
+            },
+            {
+              role: "user",
+              content: `Translate the following text from ${sourceLanguage} to ${targetLanguage}:
 
 Original Text: "${inputText}"
 
@@ -125,50 +115,40 @@ Alternatives:
 2. [Alternative 2]
 3. [Alternative 3]
 Nuances: [Brief explanation]`,
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 500,
             },
-          }),
-        }
-      );
+          ],
+          temperature: 0.7,
+          max_tokens: 500,
+        }),
+      })
 
       if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(`Translation request failed: ${errorBody}`);
+        const errorBody = await response.text()
+        throw new Error(`Translation request failed: ${errorBody}`)
       }
 
-      const data = await response.json();
+      const data = await response.json()
 
       const parseResponse = (responseData) => {
         try {
-          const responseText =
-            responseData.candidates?.[0]?.content?.parts?.[0]?.text ||
-            responseData.candidates?.[0]?.content?.text ||
-            responseData.text;
+          const responseText = responseData.choices?.[0]?.message?.content
 
           if (!responseText) {
-            throw new Error("No translation text found");
+            throw new Error("No translation text found")
           }
 
-          const translationRegex = /Translation:\s*(.+?)(?:\n|$)/is;
-          const confidenceRegex = /Confidence:\s*(\d+)%/i;
-          const alternativesRegex = /Alternatives:\s*((?:.+\n?)+)/i;
+          const translationRegex = /Translation:\s*(.+?)(?:\n|$)/is
+          const confidenceRegex = /Confidence:\s*(\d+)%/i
+          const alternativesRegex = /Alternatives:\s*((?:.+\n?)+)/i
 
-          const translationMatch = responseText.match(translationRegex);
-          const confidenceMatch = responseText.match(confidenceRegex);
-          const alternativesMatch = responseText.match(alternativesRegex);
+          const translationMatch = responseText.match(translationRegex)
+          const confidenceMatch = responseText.match(confidenceRegex)
+          const alternativesMatch = responseText.match(alternativesRegex)
 
           return {
-            translatedResult: translationMatch
-              ? translationMatch[1].trim()
-              : responseText.trim(),
+            translatedResult: translationMatch ? translationMatch[1].trim() : responseText.trim(),
             confidenceResult: confidenceMatch
-              ? parseInt(confidenceMatch[1])
+              ? Number.parseInt(confidenceMatch[1])
               : Math.max(75, Math.floor(Math.random() * 95)),
             alternativesResult: alternativesMatch
               ? alternativesMatch[1]
@@ -176,21 +156,18 @@ Nuances: [Brief explanation]`,
                   .map((alt) => alt.replace(/^\d+\.\s*/, "").trim())
                   .filter((alt) => alt)
               : [],
-          };
+          }
         } catch (parseError) {
-          console.error("Parsing error:", parseError);
-          throw new Error("Failed to parse translation response");
+          console.error("Parsing error:", parseError)
+          throw new Error("Failed to parse translation response")
         }
-      };
+      }
 
-      const { translatedResult, confidenceResult, alternativesResult } =
-        parseResponse(data);
+      const { translatedResult, confidenceResult, alternativesResult } = parseResponse(data)
 
-      setTranslatedText(translatedResult);
-      setConfidence(confidenceResult);
-      setSuggestions(
-        alternativesResult.filter((alt) => alt !== translatedResult)
-      );
+      setTranslatedText(translatedResult)
+      setConfidence(confidenceResult)
+      setSuggestions(alternativesResult.filter((alt) => alt !== translatedResult))
 
       const newHistory = {
         original: inputText,
@@ -199,77 +176,74 @@ Nuances: [Brief explanation]`,
         target: targetLanguage,
         timestamp: new Date().toLocaleString(),
         confidence: confidenceResult,
-      };
+      }
 
-      setTranslationHistory((prev) => [newHistory, ...prev]);
+      setTranslationHistory((prev) => [newHistory, ...prev])
     } catch (error) {
-      console.error("Translation error:", error);
-      setError(error.message || "Translation service temporarily unavailable");
-      showNotification(
-        error.message || "Translation service temporarily unavailable",
-        "error"
-      );
+      console.error("Translation error:", error)
+      setError(error.message || "Translation service temporarily unavailable")
+      showNotification(error.message || "Translation service temporarily unavailable", "error")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const showNotification = (message, type = "info") => {
-    const notification = document.createElement("div");
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
+    const notification = document.createElement("div")
+    notification.className = `notification ${type}`
+    notification.textContent = message
+    document.body.appendChild(notification)
 
     setTimeout(() => {
-      notification.classList.add("fade-out");
-      setTimeout(() => document.body.removeChild(notification), 500);
-    }, 3000);
-  };
+      notification.classList.add("fade-out")
+      setTimeout(() => document.body.removeChild(notification), 500)
+    }, 3000)
+  }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(translatedText);
-    showNotification("Translation copied to clipboard!", "success");
-  };
+    navigator.clipboard.writeText(translatedText)
+    showNotification("Translation copied to clipboard!", "success")
+  }
 
   const clearHistory = () => {
-    setTranslationHistory([]);
-    localStorage.removeItem("translationHistory");
-    showNotification("Translation history cleared!", "success");
-  };
+    setTranslationHistory([])
+    localStorage.removeItem("translationHistory")
+    showNotification("Translation history cleared!", "success")
+  }
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && e.ctrlKey) {
-      handleTranslate();
+      handleTranslate()
     }
-  };
+  }
 
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [inputText, sourceLanguage, targetLanguage]);
+    document.addEventListener("keydown", handleKeyPress)
+    return () => document.removeEventListener("keydown", handleKeyPress)
+  }, [inputText, sourceLanguage, targetLanguage])
 
   // Add a method to clear all persisted data
   const clearAllData = () => {
     // Clear localStorage
-    localStorage.removeItem("inputText");
-    localStorage.removeItem("translatedText");
-    localStorage.removeItem("sourceLanguage");
-    localStorage.removeItem("targetLanguage");
-    localStorage.removeItem("translationHistory");
-    localStorage.removeItem("confidence");
-    localStorage.removeItem("suggestions");
+    localStorage.removeItem("inputText")
+    localStorage.removeItem("translatedText")
+    localStorage.removeItem("sourceLanguage")
+    localStorage.removeItem("targetLanguage")
+    localStorage.removeItem("translationHistory")
+    localStorage.removeItem("confidence")
+    localStorage.removeItem("suggestions")
 
     // Reset state
-    setInputText("");
-    setTranslatedText("");
-    setSourceLanguage("english");
-    setTargetLanguage("spanish");
-    setTranslationHistory([]);
-    setConfidence(0);
-    setSuggestions([]);
+    setInputText("")
+    setTranslatedText("")
+    setSourceLanguage("english")
+    setTargetLanguage("spanish")
+    setTranslationHistory([])
+    setConfidence(0)
+    setSuggestions([])
 
-    showNotification("All data cleared!", "success");
-  };
+    showNotification("All data cleared!", "success")
+  }
 
   return (
     <div className="translation-container">
@@ -286,9 +260,7 @@ Nuances: [Brief explanation]`,
             Neural<span className="highlight">Translate</span>
           </h1>
         </div>
-        <p className="translation-subtitle">
-          Powered by Advanced Neural Networks & Machine Learning
-        </p>
+        <p className="translation-subtitle">Powered by Advanced Neural Networks & Machine Learning</p>
       </div>
 
       <div className="translation-main">
@@ -308,10 +280,7 @@ Nuances: [Brief explanation]`,
             <div className="language-select">
               <div className="language-group">
                 <label>Source Language</label>
-                <select
-                  value={sourceLanguage}
-                  onChange={(e) => setSourceLanguage(e.target.value)}
-                >
+                <select value={sourceLanguage} onChange={(e) => setSourceLanguage(e.target.value)}>
                   {languages.map((lang) => (
                     <option key={lang.toLowerCase()} value={lang.toLowerCase()}>
                       {lang}
@@ -323,9 +292,9 @@ Nuances: [Brief explanation]`,
               <div
                 className="swap-languages"
                 onClick={() => {
-                  const temp = sourceLanguage;
-                  setSourceLanguage(targetLanguage);
-                  setTargetLanguage(temp);
+                  const temp = sourceLanguage
+                  setSourceLanguage(targetLanguage)
+                  setTargetLanguage(temp)
                 }}
               >
                 ⇄
@@ -333,10 +302,7 @@ Nuances: [Brief explanation]`,
 
               <div className="language-group">
                 <label>Target Language</label>
-                <select
-                  value={targetLanguage}
-                  onChange={(e) => setTargetLanguage(e.target.value)}
-                >
+                <select value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)}>
                   {languages.map((lang) => (
                     <option key={lang.toLowerCase()} value={lang.toLowerCase()}>
                       {lang}
@@ -369,21 +335,14 @@ Nuances: [Brief explanation]`,
               <div className="confidence-score">
                 AI Confidence: {confidence}%
                 <div className="confidence-bar">
-                  <div
-                    className="confidence-fill"
-                    style={{ width: `${confidence}%` }}
-                  ></div>
+                  <div className="confidence-fill" style={{ width: `${confidence}%` }}></div>
                 </div>
               </div>
               <button className="copy-button" onClick={handleCopy}>
                 Copy
               </button>
             </div>
-            <textarea
-              className="output-text"
-              readOnly
-              value={translatedText}
-            ></textarea>
+            <textarea className="output-text" readOnly value={translatedText}></textarea>
 
             {suggestions.length > 0 && (
               <div className="alternative-translations">
@@ -419,9 +378,7 @@ Nuances: [Brief explanation]`,
               <div key={index} className="history-item">
                 <div className="history-item-header">
                   <span className="history-timestamp">{item.timestamp}</span>
-                  <span className="history-confidence">
-                    Confidence: {item.confidence}%
-                  </span>
+                  <span className="history-confidence">Confidence: {item.confidence}%</span>
                 </div>
                 <div className="history-content">
                   <div className="history-original">
@@ -437,7 +394,7 @@ Nuances: [Brief explanation]`,
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Translation;
+export default Translation

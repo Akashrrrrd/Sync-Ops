@@ -36,9 +36,9 @@
 }
 
 .core-rewrite-container {
-  max-width: 1200px;
+  max-width: 1500px;
   width: 95%;
-  margin: var(--spacing-lg) auto;
+  margin: 0px auto;
   padding: var(--spacing-lg);
   background-color: var(--color-background);
   border-radius: var(--radius-lg);

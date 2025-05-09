@@ -1,32 +1,32 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./Summarization.css";
+"use client"
 
-// Hardcoded API key (not recommended for production)
-const GEMINI_API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
+import { useState } from "react"
+import axios from "axios"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import "./Summarization.css"
+
+// Perplexity API key
+const PERPLEXITY_API_KEY = "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"
 
 const Summarization = () => {
-  const [inputText, setInputText] = useState("");
-  const [summary, setSummary] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [charCount, setCharCount] = useState(0);
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [inputText, setInputText] = useState("")
+  const [summary, setSummary] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [charCount, setCharCount] = useState(0)
+  const [copySuccess, setCopySuccess] = useState(false)
 
   const manualData = [
     {
       input:
         "Artificial Intelligence is a branch of computer science aimed at creating systems that can perform tasks typically requiring human intelligence.",
-      output:
-        "AI focuses on creating systems that perform tasks requiring human intelligence.",
+      output: "AI focuses on creating systems that perform tasks requiring human intelligence.",
     },
     {
       input:
         "React is a JavaScript library for building user interfaces, maintained by Meta and a community of individual developers and companies.",
-      output:
-        "React is a JavaScript library for building user interfaces, maintained by Meta.",
+      output: "React is a JavaScript library for building user interfaces, maintained by Meta.",
     },
     {
       input:
@@ -34,135 +34,128 @@ const Summarization = () => {
       output:
         "Climate change is significant, long-term shifts in climate caused by human activities like fossil fuel burning.",
     },
-  ];
+  ]
 
   const handleInputChange = (e) => {
-    const text = e.target.value;
-    setInputText(text);
-    setCharCount(text.length);
-    setError("");
-  };
+    const text = e.target.value
+    setInputText(text)
+    setCharCount(text.length)
+    setError("")
+  }
 
   const handleSummarize = async () => {
     if (!inputText.trim()) {
-      toast.error("Please enter some text to summarize.");
-      setError("Please enter some text to summarize.");
-      return;
+      toast.error("Please enter some text to summarize.")
+      setError("Please enter some text to summarize.")
+      return
     }
 
     if (inputText.length < 50) {
-      toast.warning(
-        "Please enter at least 50 characters for better summarization."
-      );
-      setError("Please enter at least 50 characters for better summarization.");
-      return;
+      toast.warning("Please enter at least 50 characters for better summarization.")
+      setError("Please enter at least 50 characters for better summarization.")
+      return
     }
 
-    setError("");
-    setLoading(true);
-    setSummary("");
-    setCopySuccess(false);
+    setError("")
+    setLoading(true)
+    setSummary("")
+    setCopySuccess(false)
 
-    const toastId = toast.loading("Generating summary...");
+    const toastId = toast.loading("Generating summary...")
 
     try {
       // Search for manual data match
-      const manualMatch = manualData.find(
-        (data) => data.input.trim() === inputText.trim()
-      );
+      const manualMatch = manualData.find((data) => data.input.trim() === inputText.trim())
 
       if (manualMatch) {
-        setSummary(manualMatch.output);
+        setSummary(manualMatch.output)
         toast.update(toastId, {
           render: "Summary generated successfully!",
           type: "success",
           isLoading: false,
           autoClose: 3000,
-        });
+        })
       } else {
-        // API call with corrected payload
+        // API call to Perplexity
         const response = await axios.post(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+          "https://api.perplexity.ai/chat/completions",
           {
-            contents: [
+            model: "sonar",
+            messages: [
               {
-                parts: [
-                  {
-                    text: `Please provide a concise summary of the following text:\n\n${inputText}`,
-                  },
-                ],
+                role: "system",
+                content: "You are a helpful assistant that provides concise summaries of text.",
+              },
+              {
+                role: "user",
+                content: `Please provide a concise summary of the following text:\n\n${inputText}`,
               },
             ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 256,
-            },
+            temperature: 0.7,
+            max_tokens: 256,
           },
           {
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
             },
-          }
-        );
+          },
+        )
 
-        const summaryText =
-          response.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const summaryText = response.data.choices?.[0]?.message?.content || ""
 
         if (summaryText) {
-          setSummary(summaryText);
+          setSummary(summaryText)
           toast.update(toastId, {
             render: "Summary generated successfully!",
             type: "success",
             isLoading: false,
             autoClose: 3000,
-          });
+          })
         } else {
-          setError(
-            "No summary could be generated. Please try rephrasing your input."
-          );
+          setError("No summary could be generated. Please try rephrasing your input.")
           toast.update(toastId, {
-            render:
-              "No summary could be generated. Please try rephrasing your input.",
+            render: "No summary could be generated. Please try rephrasing your input.",
             type: "error",
             isLoading: false,
             autoClose: 3000,
-          });
+          })
         }
       }
     } catch (err) {
       const errorMessage =
-        "An error occurred. Please check your input and try again.";
-      setError(errorMessage);
+        err.response?.data?.error?.message || "An error occurred. Please check your input and try again."
+      setError(errorMessage)
       toast.update(toastId, {
         render: errorMessage,
         type: "error",
         isLoading: false,
         autoClose: 3000,
-      });
-      console.error("Error details:", err.response?.data || err.message);
+      })
+      console.error("Error details:", err.response?.data || err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleCopy = async (text) => {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(true);
-      toast.success("Text copied to clipboard!");
-      setTimeout(() => setCopySuccess(false), 2000);
+      await navigator.clipboard.writeText(text)
+      setCopySuccess(true)
+      toast.success("Text copied to clipboard!")
+      setTimeout(() => setCopySuccess(false), 2000)
     } catch (err) {
-      toast.error("Failed to copy text to clipboard");
-      console.error("Failed to copy text:", err);
+      toast.error("Failed to copy text to clipboard")
+      console.error("Failed to copy text:", err)
     }
-  };
+  }
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && e.ctrlKey) {
-      handleSummarize();
-      toast.info("Shortcut detected: Ctrl + Enter");
+      handleSummarize()
+      toast.info("Shortcut detected: Ctrl + Enter")
     }
-  };
+  }
 
   return (
     <div className="sum-summarization-container">
@@ -181,9 +174,7 @@ const Summarization = () => {
 
       <div className="sum-summarization-header">
         <h1>✨ AI Text Summarization</h1>
-        <p className="sum-subtitle">
-          Transform long text into concise summaries instantly
-        </p>
+        <p className="sum-subtitle">Transform long text into concise summaries instantly</p>
       </div>
 
       <div className="sum-input-section">
@@ -196,8 +187,7 @@ const Summarization = () => {
             className="sum-summarization-textarea"
           />
           <div className="sum-char-count">
-            {charCount} characters{" "}
-            {charCount < 50 && charCount > 0 && "(minimum 50)"}
+            {charCount} characters {charCount < 50 && charCount > 0 && "(minimum 50)"}
           </div>
         </div>
 
@@ -224,11 +214,7 @@ const Summarization = () => {
         <div className="sum-summary-output">
           <div className="sum-summary-header">
             <h2>Summary</h2>
-            <button
-              onClick={() => handleCopy(summary)}
-              className="sum-copy-button"
-              title="Copy to clipboard"
-            >
+            <button onClick={() => handleCopy(summary)} className="sum-copy-button" title="Copy to clipboard">
               {copySuccess ? "✅ Copied!" : "📋 Copy"}
             </button>
           </div>
@@ -238,11 +224,9 @@ const Summarization = () => {
         </div>
       )}
 
-      <div className="sum-keyboard-shortcut">
-        Pro tip: Press Ctrl + Enter to summarize quickly
-      </div>
+      <div className="sum-keyboard-shortcut">Pro tip: Press Ctrl + Enter to summarize quickly</div>
     </div>
-  );
-};
+  )
+}
 
-export default Summarization;
+export default Summarization

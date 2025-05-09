@@ -1,12 +1,11 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import DOMPurify from "dompurify";
-import { marked } from "marked";
-import "./ContextualLearning.css";
+"use client"
 
-const API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+import { useState, useCallback, useEffect } from "react"
+import DOMPurify from "dompurify"
+import { marked } from "marked"
+import "./ContextualLearning.css"
+
+const API_KEY = "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"
 
 // Configure marked options for better parsing
 marked.setOptions({
@@ -15,121 +14,143 @@ marked.setOptions({
   smartLists: true,
   headerIds: false,
   mangle: false,
-});
+})
 
 const AIExplorer = () => {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [searchHistory, setSearchHistory] = useState([]);
-  const [cachedResults, setCachedResults] = useState({});
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [searchHistory, setSearchHistory] = useState([])
+  const [cachedResults, setCachedResults] = useState({})
 
   useEffect(() => {
-    const cached = localStorage.getItem("aiExplorerCache");
+    const cached = localStorage.getItem("aiExplorerCache")
     if (cached) {
-      setCachedResults(JSON.parse(cached));
+      setCachedResults(JSON.parse(cached))
     }
-  }, []);
+  }, [])
 
   const debouncedSetQuery = useCallback((value) => {
-    setQuery(value);
-    setError(null);
-  }, []);
+    setQuery(value)
+    setError(null)
+  }, [])
 
   const handleInputChange = (e) => {
-    debouncedSetQuery(e.target.value);
-  };
+    debouncedSetQuery(e.target.value)
+  }
 
   const generatePrompt = useCallback((topic) => {
-    return `Analyze ${topic} and provide 3 key insights. For each insight include:
+    return `Analyze ${topic} using Perplexity Sonar AI and provide 3 key insights. For each insight include:
     1. A concise title (max 8 words)
     2. A detailed explanation (2-3 sentences)
     3. Focus on current trends and future implications
     
-    Format your response clearly without using markdown symbols like * or #. Avoid using bullet points.`;
-  }, []);
+    Format your response clearly without using markdown symbols like * or #. Avoid using bullet points.`
+  }, [])
 
   const sanitizeAndParseMarkdown = (text) => {
-    // Remove markdown symbols while preserving readability
     const cleanedText = text
       .replace(/\*\*/g, "") // Remove bold markers
       .replace(/\*/g, "") // Remove italic markers
       .replace(/^#+\s*/gm, "") // Remove header markers
-      .trim();
+      .trim()
 
-    // Convert to HTML and sanitize
-    const rawHTML = marked(cleanedText);
-    return DOMPurify.sanitize(rawHTML);
-  };
+    const rawHTML = marked(cleanedText)
+    return DOMPurify.sanitize(rawHTML)
+  }
 
   const fetchResults = async () => {
     if (!query.trim()) {
-      setError("Please enter a topic to explore");
-      return;
+      setError("Please enter a topic to explore")
+      return
     }
 
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
       if (cachedResults[query.toLowerCase()]) {
-        setResults(cachedResults[query.toLowerCase()]);
-        setLoading(false);
-        return;
+        setResults(cachedResults[query.toLowerCase()])
+        setLoading(false)
+        return
       }
 
-      const prompt = generatePrompt(query);
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      const prompt = generatePrompt(query)
+
+      const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert analyst that provides clear, concise insights on any topic.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 500,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`)
+      }
+
+      const data = await response.json()
+      const text = data.choices[0].message.content
 
       const parsedResults = text
         .split("\n")
         .filter((line) => line.trim() !== "")
         .reduce((acc, line) => {
-          // Look for lines that seem to be titles (typically start with a capital letter)
           if (/^[A-Z]/.test(line.trim())) {
             acc.push({
               title: line.trim(),
               summary: "",
               timestamp: new Date().toISOString(),
-            });
+            })
           } else if (acc.length > 0) {
-            // Add to the most recent result's summary
-            acc[acc.length - 1].summary +=
-              (acc[acc.length - 1].summary ? " " : "") + line.trim();
+            acc[acc.length - 1].summary += (acc[acc.length - 1].summary ? " " : "") + line.trim()
           }
-          return acc;
+          return acc
         }, [])
         .map((result) => ({
           ...result,
           title: sanitizeAndParseMarkdown(result.title),
           summary: sanitizeAndParseMarkdown(result.summary),
         }))
-        .filter((result) => result.title && result.summary);
+        .filter((result) => result.title && result.summary)
 
       const updatedCache = {
         ...cachedResults,
         [query.toLowerCase()]: parsedResults,
-      };
-      setCachedResults(updatedCache);
-      localStorage.setItem("aiExplorerCache", JSON.stringify(updatedCache));
+      }
+      setCachedResults(updatedCache)
+      localStorage.setItem("aiExplorerCache", JSON.stringify(updatedCache))
 
-      setResults(parsedResults);
-      setSearchHistory((prev) => [...new Set([query, ...prev])].slice(0, 5));
+      setResults(parsedResults)
+      setSearchHistory((prev) => [...new Set([query, ...prev])].slice(0, 5))
     } catch (err) {
-      console.error("AI API Error:", err);
-      setError("Failed to fetch AI insights. Please try again.");
+      console.error("API Error:", err)
+      setError("Failed to fetch insights from Perplexity Sonar AI.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSearch = (e) => {
-    e.preventDefault();
-    fetchResults();
-  };
+    e.preventDefault()
+    fetchResults()
+  }
 
   return (
     <div className="learn-explorer-container">
@@ -148,10 +169,8 @@ const AIExplorer = () => {
               ))}
             </div>
           </div>
-          <h1>Neural Insight Explorer</h1>
-          <p className="learn-subtitle">
-            Advanced AI-Powered Knowledge Discovery
-          </p>
+          <h1>Sonar Insight Explorer</h1>
+          <p className="learn-subtitle">Powered by Perplexity Sonar AI</p>
         </header>
 
         <section className="learn-search-section">
@@ -160,16 +179,12 @@ const AIExplorer = () => {
               <input
                 type="text"
                 className="learn-search-input"
-                placeholder="Explore any topic with AI..."
+                placeholder="Explore any topic with Perplexity Sonar..."
                 value={query}
                 onChange={handleInputChange}
                 autoComplete="off"
               />
-              <button
-                type="submit"
-                className="learn-search-button"
-                disabled={loading}
-              >
+              <button type="submit" className="learn-search-button" disabled={loading}>
                 {loading ? (
                   <div className="learn-loading-spinner" />
                 ) : (
@@ -184,15 +199,15 @@ const AIExplorer = () => {
 
           {searchHistory.length > 0 && (
             <div className="learn-search-history">
-              <p>Recent searches:</p>
+              <p>Recent topics:</p>
               <div className="learn-history-tags">
                 {searchHistory.map((item, index) => (
                   <button
                     key={index}
                     className="learn-history-tag"
                     onClick={() => {
-                      setQuery(item);
-                      fetchResults();
+                      setQuery(item)
+                      fetchResults()
                     }}
                   >
                     {item}
@@ -211,7 +226,7 @@ const AIExplorer = () => {
                 <div className="learn-processing-circle"></div>
                 <div className="learn-processing-circle"></div>
               </div>
-              <p>Neural networks processing your query...</p>
+              <p>Perplexity Sonar analyzing your query...</p>
             </div>
           )}
 
@@ -222,7 +237,7 @@ const AIExplorer = () => {
                 <div className="learn-brain-wave"></div>
                 <div className="learn-brain-wave"></div>
               </div>
-              <p>Enter a topic to discover AI-powered insights</p>
+              <p>Enter a topic to explore with Perplexity Sonar AI</p>
             </div>
           )}
 
@@ -241,16 +256,12 @@ const AIExplorer = () => {
                     <h2 dangerouslySetInnerHTML={{ __html: result.title }}></h2>
                   </div>
                   <div className="learn-card-content">
-                    <div
-                      dangerouslySetInnerHTML={{ __html: result.summary }}
-                    ></div>
+                    <div dangerouslySetInnerHTML={{ __html: result.summary }}></div>
                   </div>
                   <div className="learn-card-footer">
-                    <div className="learn-insight-tag">AI Analysis</div>
+                    <div className="learn-insight-tag">Sonar Analysis</div>
                     {result.timestamp && (
-                      <div className="learn-timestamp">
-                        {new Date(result.timestamp).toLocaleDateString()}
-                      </div>
+                      <div className="learn-timestamp">{new Date(result.timestamp).toLocaleDateString()}</div>
                     )}
                   </div>
                 </div>
@@ -259,7 +270,7 @@ const AIExplorer = () => {
         </section>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AIExplorer;
+export default AIExplorer
