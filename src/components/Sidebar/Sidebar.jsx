@@ -1,4 +1,7 @@
+"use client"
+
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   FaBars,
   FaRobot, // AI Icon for Dynamic Prompts
@@ -6,24 +9,31 @@ import {
   FaLanguage, // For Translation
   FaPen, // For Write API
   FaSync, // For Content Rewrite
-  FaRegLightbulb, // For Idea Generation (optional new feature)
-  FaClipboardList,
+  FaRegLightbulb, // For Idea Generation
   FaChartLine,
   FaBrain,
   FaUserSecret,
-  FaMicrophoneAlt,
-  FaUniversalAccess,
-  FaCommentDots,
-  FaProjectDiagram,
+  FaMicrophoneAlt
 } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Sidebar.css";
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const location = useLocation();
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  // Check if a link is active based on the current path
+  const isActive = (path) => {
+    // Convert both to lowercase for case-insensitive comparison
+    const currentPath = location.pathname.toLowerCase();
+    path = path.toLowerCase();
+    
+    // Check if the current path matches the link path
+    return currentPath === path;
   };
 
   useEffect(() => {
@@ -96,14 +106,14 @@ const Sidebar = () => {
       <ul className="sidebar-list">
         {sidebarItems.map((item, index) => (
           <li key={index} className="sidebar-item">
-            <NavLink
+            <Link
               to={item.link}
-              className="sidebar-link"
-              activeClassName="active-link"
+              className={`sidebar-link ${isActive(item.link) ? "active-link" : ""}`}
+              data-title={item.name}
             >
               <span className="icon">{item.icon}</span>
               {isExpanded && <span className="label">{item.name}</span>}
-            </NavLink>
+            </Link>
           </li>
         ))}
       </ul>

@@ -100,6 +100,35 @@
   gap: 1.25rem;
 }
 
+/* Navigation Menu */
+.navbar-menu {
+  display: flex;
+  gap: 2rem;
+  margin: 0 2rem;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  padding: 0.5rem 0;
+  transition: var(--transition-default);
+  border-bottom: 2px solid transparent;
+}
+
+.nav-link:hover, .nav-link:active, .nav-link.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* Navbar Actions */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
 /* Search Component */
 .search-container {
   position: relative;

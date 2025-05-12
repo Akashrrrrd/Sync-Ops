@@ -156,8 +156,8 @@
 }
 
 .project-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.15);
+  transform: translateY(0px);
+  /* box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.15); */
 }
 
 .dark-mode .project-card:hover {
@@ -175,11 +175,11 @@
 .project-header h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-light);
+  /* color: var(--text-light); */
 }
 
 .dark-mode .project-header h3 {
-  color: var(--text-dark);
+  /* color: var(--text-dark); */
 }
 
 /* Status badge styles */
@@ -225,7 +225,7 @@
 .team-info h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-light);
+  /* color: var(--text-light); */
   margin-bottom: 0.75rem;
 }
 

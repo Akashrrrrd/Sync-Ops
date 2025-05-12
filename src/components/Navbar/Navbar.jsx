@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+"use client";
+
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -6,8 +8,10 @@ import "./Navbar.css";
 import "./AIModal.css";
 import logo from "./../../assets/logo.png";
 
+import { NavLink } from "react-router-dom";
+
 // Constants
-const API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
+const API_KEY = "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";
 const STORAGE_KEY = "ai_chat_history";
 
 // Configure marked options
@@ -376,12 +380,11 @@ const Navbar = ({ isLoggedIn, handleLogout, userType }) => {
       }),
     };
 
-    // Construct context from previous messages
-    const conversationHistory = chatMessages
-      .map((msg) => `${msg.type}: ${msg.content}`)
-      .join("\n");
-
-    const contextualPrompt = `Previous conversation:\n${conversationHistory}\n\nCurrent query: ${aiQuery}\n\nPlease provide a response that takes into account the conversation history above.`;
+    // Format previous messages for context
+    const previousMessages = chatMessages.map((msg) => ({
+      role: msg.type === "user" ? "user" : "assistant",
+      content: msg.content,
+    }));
 
     setChatMessages((prev) => [...prev, userMessage]);
     setAIQuery("");
@@ -389,14 +392,29 @@ const Navbar = ({ isLoggedIn, handleLogout, userType }) => {
 
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`,
+        "https://api.perplexity.ai/chat/completions",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${API_KEY}`,
           },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: contextualPrompt }] }],
+            model: "sonar",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a helpful AI assistant for SyncOps, a project management and collaboration platform. Provide concise, helpful responses to user queries.",
+              },
+              ...previousMessages,
+              {
+                role: "user",
+                content: aiQuery,
+              },
+            ],
+            temperature: 0.7,
+            max_tokens: 500,
           }),
         }
       );
@@ -409,7 +427,7 @@ const Navbar = ({ isLoggedIn, handleLogout, userType }) => {
       const aiResponse = {
         type: "ai",
         content:
-          data.candidates?.[0]?.content?.parts?.[0]?.text ||
+          data.choices?.[0]?.message?.content ||
           "No response generated. Please try again.",
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
@@ -419,7 +437,7 @@ const Navbar = ({ isLoggedIn, handleLogout, userType }) => {
 
       setChatMessages((prev) => [...prev, aiResponse]);
     } catch (error) {
-      console.error("Error with Gemini API:", error);
+      console.error("Error with Perplexity API:", error);
       const errorResponse = {
         type: "ai",
         content:
@@ -439,29 +457,33 @@ const Navbar = ({ isLoggedIn, handleLogout, userType }) => {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="navbar-logo">
-          <img src={logo} alt="Logo" className="logo-image" />
+          <img
+            src={logo || "/placeholder.svg"}
+            alt="Logo"
+            className="logo-image"
+          />
           <span className="logo-text">SyncOps</span>
         </div>
 
         <div className="navbar-menu">
-          <Link to="/dashboard" className="nav-link">
+          <NavLink to="/dashboard" className="nav-link">
             Dashboard
-          </Link>
-          <Link to="/projects" className="nav-link">
+          </NavLink>
+          <NavLink to="/projects" className="nav-link">
             Projects
-          </Link>
-          <Link to="/tasks" className="nav-link">
+          </NavLink>
+          <NavLink to="/tasks" className="nav-link">
             Tasks
-          </Link>
-          <Link to="/analytics" className="nav-link">
+          </NavLink>
+          <NavLink to="/analytics" className="nav-link">
             Analytics
-          </Link>
-          <Link to="/resources" className="nav-link">
+          </NavLink>
+          <NavLink to="/resources" className="nav-link">
             Resources
-          </Link>
-          <Link to="/chatroom" className="nav-link">
+          </NavLink>
+          <NavLink to="/chatroom" className="nav-link">
             Chat
-          </Link>
+          </NavLink>
         </div>
 
         <div className="navbar-actions">
@@ -490,6 +512,7 @@ const Navbar = ({ isLoggedIn, handleLogout, userType }) => {
             isProfileMenuOpen={isProfileMenuOpen}
             toggleProfileMenu={toggleProfileMenu}
             handleSignOut={handleSignOut}
+            userType={userType}
           />
         </div>
       </div>

@@ -9,7 +9,7 @@
   --sidebar-hover-bg: linear-gradient(145deg, #2c3242, #353a45);
   --icon-color: #00bcd4; /* Cyan blue */
   --text-color: #e6e6e6;
-  --active-bg: #00838f;
+  --active-bg: #e6e6e6;
   --active-text-color: #1a1e2a;
 
   /* Shadows and Transitions */
@@ -121,7 +121,7 @@
 }
 
 .sidebar-link:hover {
-  transform: translateX(8px);
+  transform: translateX(2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -165,7 +165,7 @@
 
 .sidebar.collapsed .sidebar-link {
   justify-content: center;
-  padding: 0.75rem 0;
+  padding: 0.65rem 0;
 }
 
 .sidebar.collapsed .icon {

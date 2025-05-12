@@ -41,10 +41,10 @@ const ContentGeneration = () => {
   ]
 
   const lengthOptions = [
-    { value: "short", label: "Short (100 words)", maxTokens: 200 },
-    { value: "medium", label: "Medium (300 words)", maxTokens: 400 },
-    { value: "long", label: "Long (500 words)", maxTokens: 800 },
-    { value: "custom", label: "Custom Length", maxTokens: 1000 },
+    { value: "short", label: "Short (100 words)", maxTokens: 400 },
+    { value: "medium", label: "Medium (300 words)", maxTokens: 600 },
+    { value: "long", label: "Long (500 words)", maxTokens: 1000 },
+    { value: "custom", label: "Custom Length", maxTokens: 1200 },
   ]
 
   const promptTemplates = [

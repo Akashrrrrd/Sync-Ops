@@ -25,7 +25,7 @@
 
 .prompt-forge-container:hover {
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
-  transform: translateY(-7px);
+  transform: translateY(0px);
 }
 
 .prompt-forge-header {

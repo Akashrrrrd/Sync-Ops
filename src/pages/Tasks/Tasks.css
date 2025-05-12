@@ -129,9 +129,9 @@
 
 /* Hover state for task item */
 .tata-task-item:hover {
-  background-color: var(--background-hover);
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  /* background-color: var(--background-hover); */
+  transform: translateY(0px);
+  /* box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); */
 }
 
 /* Task content inside each item */

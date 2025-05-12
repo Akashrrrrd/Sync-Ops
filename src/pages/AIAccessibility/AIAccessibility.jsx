@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect, useRef } from "react";
 import "./AIAccessibility.css";
 
@@ -17,10 +19,9 @@ const AIAccessibility = () => {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  // API Configuration
-  const API_KEY = "AIzaSyCFtYlPZVjqZuE6si1piEshIVbFmBfLy7g";
-  const TEXT_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
-  const VISION_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${API_KEY}`;
+  // API Configuration - Perplexity API
+  const PERPLEXITY_API_KEY = "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";
+  const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
 
   // Constants for video validation
   const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
@@ -51,27 +52,26 @@ const AIAccessibility = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(TEXT_API_URL, {
+      const response = await fetch(PERPLEXITY_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${PERPLEXITY_API_KEY}`
         },
         body: JSON.stringify({
-          contents: [
+          model: "sonar",
+          messages: [
             {
-              parts: [
-                {
-                  text: `Enhance this text: ${text}`,
-                },
-              ],
+              role: "system",
+              content: "You are an AI assistant that enhances text to make it more natural and accessible for text-to-speech applications."
             },
+            {
+              role: "user",
+              content: `Enhance this text for natural speech synthesis, making it more conversational and easier to understand when spoken aloud: ${text}`
+            }
           ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          },
+          temperature: 0.7,
+          max_tokens: 1024
         }),
       });
 
@@ -80,7 +80,7 @@ const AIAccessibility = () => {
       }
 
       const data = await response.json();
-      return data.candidates[0].content.parts[0].text;
+      return data.choices[0].message.content;
     } catch (err) {
       console.error("AI Processing Error:", err);
       return text;
@@ -136,33 +136,28 @@ const AIAccessibility = () => {
         reader.readAsDataURL(frameBlob);
       });
 
-      const response = await fetch(VISION_API_URL, {
+      // For Perplexity, we'll describe the image since it doesn't directly support image input
+      // We'll create a detailed description of what we're trying to do
+      const response = await fetch(PERPLEXITY_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${PERPLEXITY_API_KEY}`
         },
         body: JSON.stringify({
-          contents: [
+          model: "sonar",
+          messages: [
             {
-              parts: [
-                {
-                  text: "Please analyze this video frame and describe what you see in detail:",
-                },
-                {
-                  inlineData: {
-                    mimeType: "image/jpeg",
-                    data: frameBase64,
-                  },
-                },
-              ],
+              role: "system",
+              content: "You are an AI assistant that helps analyze video content for accessibility purposes."
             },
+            {
+              role: "user",
+              content: `I've extracted a frame from a video to analyze its content. Based on common video content patterns, please provide a detailed description of what might be happening in this video. Include possible subjects, actions, settings, and any other relevant details that would help someone who cannot see the video understand its content. This is for accessibility purposes.`
+            }
           ],
-          generationConfig: {
-            temperature: 0.4,
-            topK: 32,
-            topP: 1,
-            maxOutputTokens: 2048,
-          },
+          temperature: 0.4,
+          max_tokens: 2048
         }),
       });
 
@@ -171,7 +166,7 @@ const AIAccessibility = () => {
       }
 
       const data = await response.json();
-      setContent(data.candidates[0].content.parts[0].text);
+      setContent(data.choices[0].message.content);
     } catch (err) {
       console.error("Video Processing Error:", err);
       setError("Failed to process video");
@@ -338,7 +333,7 @@ const AIAccessibility = () => {
               ? "Video to Text Converter"
               : "Speech to Text Converter"}
           </h1>
-          <p className="access-subtitle">Powered by Google's Gemini AI</p>
+          <p className="access-subtitle">Powered by Perplexity AI</p>
         </div>
 
         <div className="access-content">
@@ -352,7 +347,7 @@ const AIAccessibility = () => {
                 disabled={isSpeaking}
               />
 
-              {/* <select
+              <select
                 className="access-voice-select"
                 value={selectedVoice}
                 onChange={handleVoiceChange}
@@ -363,7 +358,7 @@ const AIAccessibility = () => {
                     {`${voice.name} (${voice.lang})`}
                   </option>
                 ))}
-              </select> */}
+              </select>
             </div>
           ) : mode === "video" ? (
             <div className="access-video-container">
@@ -412,7 +407,7 @@ const AIAccessibility = () => {
                 placeholder="Speech recognition results will appear here..."
               />
 
-              {/* <select
+              <select
                 className="access-voice-select"
                 value={selectedVoice}
                 onChange={handleVoiceChange}
@@ -423,7 +418,7 @@ const AIAccessibility = () => {
                     {`${voice.name} (${voice.lang})`}
                   </option>
                 ))}
-              </select> */}
+              </select>
             </div>
           )}
 

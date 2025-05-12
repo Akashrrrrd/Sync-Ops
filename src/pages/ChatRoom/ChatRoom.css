@@ -41,8 +41,8 @@
 }
 
 .whiteboard-section:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08), 0 6px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(0px);
+  /* box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08), 0 6px 8px rgba(0, 0, 0, 0.06); */
 }
 
 .whiteboard {
@@ -124,8 +124,8 @@
 }
 
 .chat-section:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08), 0 6px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(0px);
+  /* box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08), 0 6px 8px rgba(0, 0, 0, 0.06); */
 }
 
 .chat-header {
