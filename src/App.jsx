@@ -35,6 +35,7 @@ import ContextualLearning from "./pages/ContextualLearning/ContextualLearning";
 import ContentAnonymizer from "./pages/ContentAnonymizer/ContentAnonymizer";
 import AIAccessibility from "./pages/AIAccessibility/AIAccessibility";
 import ScrollToTop from "./components/ScrollToTop"; // Import ScrollToTop component
+import AIBot from "./pages/AIBot/AIBot"; // Import the new AIBot component
 import "./App.css";
 import "./components/i18n/i18n";
 
@@ -43,6 +44,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [userRole, setUserRole] = useState(null);
+  const [isAIBotOpen, setIsAIBotOpen] = useState(false); // State for AI Bot
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -56,6 +58,10 @@ function App() {
 
   const toggleSidebar = () => {
     setIsSidebarExpanded(!isSidebarExpanded);
+  };
+
+  const toggleAIBot = () => {
+    setIsAIBotOpen(!isAIBotOpen);
   };
 
   const handleLogin = (role = "user") => {
@@ -184,6 +190,9 @@ function App() {
                   <Route path="*" element={<Navigate to="/dashboard" />} />
                 </Routes>
               </div>
+              
+              {/* AI Bot Component */}
+              <AIBot isOpen={isAIBotOpen} toggleAIBot={toggleAIBot} />
             </div>
           </>
         ) : (
