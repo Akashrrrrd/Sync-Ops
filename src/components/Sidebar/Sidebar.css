@@ -276,21 +276,7 @@
 
 .main-content.sidebar-collapsed {
   margin-left: var(--sidebar-collapsed-width);
-}
-
-/* Specific styling for Summarization link when active */
-.sidebar-link[href="/summarization"].active-link {
-  background: linear-gradient(to right, rgba(0, 188, 212, 0.15), rgba(0, 131, 143, 0.05)) !important;
-}
-
-.sidebar-link[href="/summarization"].active-link::before {
-  background-color: #00e5ff !important; /* Brighter color for Summarization */
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); /* Enhanced glow */
-}
-
-.sidebar-link[href="/summarization"].active-link .icon {
-  color: #00e5ff !important; /* Matching icon color */
-}
+} 
 
 /* Category Dividers - New */
 .sidebar-category {
@@ -355,7 +341,6 @@
 /* Subtle hover effect for menu items */
 .sidebar-link:hover .icon {
   transform: translateY(-1px);
-  color: white;
 }
 
 .sidebar-link:hover .label {
