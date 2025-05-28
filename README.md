@@ -47,6 +47,16 @@ SyncOps is a comprehensive platform that integrates various AI functionalities, 
 - Perplexity Sonar API integration
 - ESLint for linting
 
+## About Perplexity Sonar API Integration
+
+This project leverages the Perplexity Sonar API extensively to power all AI-driven features directly from the frontend. By integrating the API calls within the React application, SyncOps eliminates the need for a separate backend server, enabling a seamless and efficient user experience.
+
+The Perplexity Sonar API provides advanced AI capabilities such as content generation, summarization, translation, and chat functionalities. SyncOps communicates directly with this API from the client side, ensuring real-time responses and reducing latency.
+
+This frontend-only architecture not only simplifies deployment and maintenance but also showcases innovative use of modern web technologies to deliver powerful AI tools in a lightweight package. The project demonstrates how cutting-edge AI services can be integrated into a user-friendly platform without backend complexity.
+
+As an entry for the Perplexity Hackathon 2025, SyncOps highlights the potential of the Perplexity Sonar API to transform how users interact with AI-powered applications, emphasizing speed, accessibility, and versatility.
+
 ## Installation and Setup
 
 ### Prerequisites
