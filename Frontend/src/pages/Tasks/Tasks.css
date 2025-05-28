@@ -1,0 +1,314 @@
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #3498db;
+  --background-light: #f4f4f4;
+  --background-hover: #f8fafc;
+  --tata-text-color: #333;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --border-radius: 12px;
+}
+
+/* Container for tasks */
+.tata-tasks-container {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fefefe;
+  border-radius: 25px;
+  box-shadow: 0 6px 20px var(--shadow-color);
+}
+
+/* Header for tasks */
+.tata-tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+/* Header title style */
+.tata-tasks-header h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: -0.5px;
+}
+
+/* Button group for filters */
+.tata-filter-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.tata-filter-buttons button {
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  background-color: #e7eaf3;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+/* Active and hover states for filter buttons */
+.tata-filter-buttons .tata-active,
+.tata-filter-buttons button:hover {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+/* Task input container */
+.tata-task-input-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.tata-task-input-container input,
+.tata-task-input-container select {
+  padding: 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  width: 200px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Style for date input field */
+.tata-task-input-container input[type="date"] {
+  width: 200px;
+}
+
+/* Input and select on focus */
+.tata-task-input-container input:focus,
+.tata-task-input-container select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+}
+
+/* Add task button */
+.tata-task-input-container button {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.tata-task-input-container button:hover {
+  background-color: #218838;
+  transform: translateY(-3px);
+}
+
+/* Task list styling */
+.tata-task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual task item */
+.tata-task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 15px var(--shadow-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover state for task item */
+.tata-task-item:hover {
+  /* background-color: var(--background-hover); */
+  transform: translateY(0px);
+  /* box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); */
+}
+
+/* Task content inside each item */
+.tata-task-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tata-task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Title of the task */
+.tata-task-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Priority labels for tasks */
+.tata-priority {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+/* Colors for priority levels */
+.tata-priority.low {
+  background-color: #28a745;
+}
+
+.tata-priority.medium {
+  background-color: #ffc107;
+}
+
+.tata-priority.high {
+  background-color: #dc3545;
+}
+
+/* Meta information (Assignee and Deadline) */
+.tata-task-meta {
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  gap: 20px;
+}
+
+.tata-task-summary {
+  background-color: var(--background-light);
+  border-left: 6px solid var(--primary-color);
+  padding: 20px;
+  margin-top: 15px;
+  margin-left: 65px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 6px var(--shadow-color), 0 1px 3px var(--shadow-color);
+  font-size: 15px;
+  line-height: 1.7;
+  max-height: 350px;
+  overflow-y: auto;
+  color: var(--tata-text-color);
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  position: relative;
+}
+
+.tata-task-summary:hover {
+  background-color: var(--background-hover);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+.tata-task-summary::before {
+  content: "AI Task Breakdown";
+  display: block;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-size: 18px;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 8px;
+}
+
+.tata-task-summary::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tata-task-summary::-webkit-scrollbar-track {
+  background: var(--background-light);
+  border-radius: 4px;
+}
+
+.tata-task-summary::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 4px;
+}
+
+/* Styling for assignee and deadline */
+.tata-assignee,
+.tata-deadline {
+  font-weight: 500;
+  color: #555;
+}
+
+/* Select input and AI Summary button */
+.tata-task-status select,
+.tata-ai-summary-btn,
+.tata-ai-suggestion-btn {
+  padding: 12px;
+  margin-left: 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+/* Hover and active states for AI suggestion button */
+.tata-ai-suggestion-btn:hover {
+  background-color: #eef2f5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* AI suggestion container */
+.tata-ai-suggestion {
+  margin-left: 10px;
+  margin-bottom: 20px;
+  background-color: #f4f8fc;
+  padding: 15px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tata-ai-suggestion-btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.tata-ai-suggestion-btn:hover {
+  background-color: #357ab8;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .tata-tasks-container {
+    padding: 15px;
+  }
+
+  .tata-tasks-header h2 {
+    font-size: 24px;
+  }
+
+  .tata-task-summary {
+    font-size: 14px;
+    padding: 15px;
+    margin-top: 10px;
+  }
+
+  .tata-task-summary::before {
+    font-size: 16px;
+  }
+
+  .tata-filter-buttons {
+    flex-wrap: wrap;
+  }
+
+  .tata-task-input-container {
+    flex-direction: column;
+  }
+
+  .tata-task-input-container input,
+  .tata-task-input-container select,
+  .tata-task-input-container button {
+    width: 100%;
+  }
+}
